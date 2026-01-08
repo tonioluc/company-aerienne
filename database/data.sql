@@ -1,3 +1,4 @@
+-- \i /home/antonio/ITU/S5/md-baovola/aerienne/database/data.sql
 insert into avions (modele, capacite) values
 ('Boeing 737', 189),
 ('Airbus A320', 180),
