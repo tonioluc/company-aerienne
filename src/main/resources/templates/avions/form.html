@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${avion.id} != null ? 'Modifier Avion' : 'Créer Avion'"></title>
+    <style>
+        form { max-width: 400px; }
+        label { display:block; margin-top: 8px; }
+        input { width: 100%; padding: 6px; }
+        .actions { margin-top: 12px; display: flex; gap: 8px; }
+    </style>
+</head>
+<body>
+<h1 th:text="${avion.id} != null ? 'Modifier Avion' : 'Créer Avion'"></h1>
+
+<form th:action="${avion.id} != null ? @{'/avions/' + ${avion.id}} : @{/avions}" th:object="${avion}" method="post">
+    <input type="hidden" th:if="${avion.id} != null" th:field="*{id}" />
+
+    <label for="modele">Modèle</label>
+    <input id="modele" type="text" th:field="*{modele}" required maxlength="50" />
+
+    <label for="capacite">Capacité</label>
+    <input id="capacite" type="number" th:field="*{capacite}" min="1" required />
+
+    <div class="actions">
+        <button type="submit">Enregistrer</button>
+        <a th:href="@{/avions}">Annuler</a>
+    </div>
+</form>
+
+</body>
+</html>
