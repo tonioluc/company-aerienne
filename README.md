@@ -82,5 +82,3 @@ Si vous avez modifié le port (`server.port`) dans `application.properties`, rem
 ## Notes
 - Le fichier `application.properties` est configuré par défaut avec `spring.jpa.hibernate.ddl-auto=none` pour ne pas modifier la structure de la base existante.
 - Les vues Thymeleaf sont disponibles dans `src/main/resources/templates/avions/`.
-
-Si vous voulez, je peux ajouter un script `Makefile` ou des commandes d'initialisation automatisées.
