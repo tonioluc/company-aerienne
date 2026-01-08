@@ -2,6 +2,8 @@ package itu.company.aerienne.controller;
 
 import itu.company.aerienne.model.Avion;
 import itu.company.aerienne.service.AvionService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +14,9 @@ import java.util.Optional;
 @RequestMapping("/avions")
 public class AvionController {
 
-    private final AvionService service;
+    @Autowired
+    private AvionService service;
 
-    public AvionController(AvionService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public String list(Model model) {
