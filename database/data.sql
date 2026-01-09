@@ -6,7 +6,7 @@ INSERT INTO aeroport (code_IATA, ville) VALUES
 ('JNB', 'Johannesburg'),
 ('NOS', 'Nosy Be');
 
-INSERT INTO avion (capacité, modele) VALUES
+INSERT INTO avion (capacite, modele) VALUES
 (180, 'Boeing 737'),
 (220, 'Airbus A320'),
 (300, 'Boeing 787'),

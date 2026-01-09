@@ -14,7 +14,7 @@ CREATE TABLE aeroport(
 
 CREATE TABLE avion(
    Id_avion SERIAL,
-   capacité NUMERIC(15,2)  ,
+   capacite NUMERIC(15,2)  ,
    modele VARCHAR(50) ,
    PRIMARY KEY(Id_avion)
 );

@@ -3,12 +3,12 @@ package itu.company.aerienne.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "avions")
+@Table(name = "Avion")
 public class Avion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer Id_avion;
 
     @Column(nullable = false, length = 50)
     private String modele;
@@ -19,18 +19,18 @@ public class Avion {
     public Avion() {
     }
 
-    public Avion(Integer id, String modele, Integer capacite) {
-        this.id = id;
+    public Avion(Integer Id_avion, String modele, Integer capacite) {
+        this.Id_avion = Id_avion;
         this.modele = modele;
         this.capacite = capacite;
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getId_avion() {
+        return Id_avion;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setId_avion(Integer Id_avion) {
+        this.Id_avion = Id_avion;
     }
 
     public String getModele() {

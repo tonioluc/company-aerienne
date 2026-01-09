@@ -48,7 +48,7 @@ public class AvionController {
 
     @PostMapping("/{id}")
     public String update(@PathVariable Integer id, @ModelAttribute Avion avion) {
-        avion.setId(id);
+        avion.setId_avion(id);
         service.save(avion);
         return "redirect:/avions";
     }
