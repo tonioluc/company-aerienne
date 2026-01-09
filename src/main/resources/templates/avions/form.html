@@ -3,30 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${avion.id} != null ? 'Modifier Avion' : 'Créer Avion'"></title>
-    <style>
-        form { max-width: 400px; }
-        label { display:block; margin-top: 8px; }
-        input { width: 100%; padding: 6px; }
-        .actions { margin-top: 12px; display: flex; gap: 8px; }
-    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 </head>
 <body>
-<h1 th:text="${avion.id} != null ? 'Modifier Avion' : 'Créer Avion'"></h1>
-
-<form th:action="${avion.id} != null ? @{'/avions/' + ${avion.id}} : @{/avions}" th:object="${avion}" method="post">
-    <input type="hidden" th:if="${avion.id} != null" th:field="*{id}" />
-
-    <label for="modele">Modèle</label>
-    <input id="modele" type="text" th:field="*{modele}" required maxlength="50" />
-
-    <label for="capacite">Capacité</label>
-    <input id="capacite" type="number" th:field="*{capacite}" min="1" required />
-
-    <div class="actions">
-        <button type="submit">Enregistrer</button>
-        <a th:href="@{/avions}">Annuler</a>
+<div class="container" style="max-width: 640px;">
+    <div class="page-header">
+        <h1 th:text="${avion.id} != null ? 'Modifier Avion' : 'Créer Avion'"></h1>
     </div>
-</form>
+
+    <form class="form-horizontal" th:action="${avion.id} != null ? @{'/avions/' + ${avion.id}} : @{/avions}" th:object="${avion}" method="post">
+        <input type="hidden" th:if="${avion.id} != null" th:field="*{id}" />
+
+        <div class="form-group">
+            <label for="modele" class="col-sm-3 control-label">Modèle</label>
+            <div class="col-sm-9">
+                <input id="modele" type="text" class="form-control" th:field="*{modele}" required maxlength="50" placeholder="Ex: Boeing 737" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="capacite" class="col-sm-3 control-label">Capacité</label>
+            <div class="col-sm-9">
+                <input id="capacite" type="number" class="form-control" th:field="*{capacite}" min="1" required placeholder="Nombre de places" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <a class="btn btn-default" th:href="@{/avions}">Annuler</a>
+            </div>
+        </div>
+    </form>
+</div>
 
 </body>
 </html>
