@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Places Achetées</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <div class="mb-4">
+        <h1><i class="fa fa-ticket" aria-hidden="true"></i> Liste des Places Achetées</h1>
+    </div>
+
+    <p>
+        <a class="btn btn-success" th:href="@{/achats}">
+            <i class="fa fa-plus" aria-hidden="true"></i> Acheter des places
+        </a>
+    </p>
+
+    <div th:if="${#lists.isEmpty(achats)}" class="alert alert-info">
+        Aucune place achetée pour le moment.
+    </div>
+
+    <div th:unless="${#lists.isEmpty(achats)}" class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Nom Client</th>
+                <th>Nombre de Places</th>
+                <th>ID Vol</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="achat : ${achats}">
+                <td th:text="${achat.idAchatPlaces}"></td>
+                <td th:text="${achat.nomClient}"></td>
+                <td th:text="${achat.nombrePlace}"></td>
+                <td th:text="${achat.idVol}"></td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Actions">
+                        <form th:action="@{'/achats/liste/' + ${achat.idAchatPlaces} + '/delete'}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Confirmer la suppression ?');">
+                                <i class="fa fa-trash" aria-hidden="true"></i> Supprimer
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-3">
+        <a class="btn btn-secondary" th:href="@{/}">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i> Annuler
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
