@@ -44,6 +44,6 @@ public class ChiffreAffaireController {
             model.addAttribute("totalCAGlobal", totalCAGlobal);
         }
 
-        return "avions/chiffre-affaires";
+        return "chiffre-affaires/chiffre-affaires";
     }
 }

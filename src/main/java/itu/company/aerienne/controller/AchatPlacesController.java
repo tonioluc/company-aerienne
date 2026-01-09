@@ -33,7 +33,7 @@ public class AchatPlacesController {
     public String showForm(Model model) {
         model.addAttribute("aeroports", aeroportService.findAll());
         model.addAttribute("achat", new AchatPlacesFormDto());
-        return "avions/achat-places";
+        return "achats/achat-places";
     }
 
     @PostMapping
@@ -60,14 +60,14 @@ public class AchatPlacesController {
             model.addAttribute("clientNom", donneesEnvoye.getClientNomComplet());
             model.addAttribute("placeDemandee", donneesEnvoye.getPlaces());
 
-            return "avions/liste-vol-dispo";
+            return "achats/liste-vol-dispo";
 
         } catch (IllegalArgumentException e) {
             // Erreur de validation: retourner au formulaire avec message
             model.addAttribute("aeroports", aeroportService.findAll());
             model.addAttribute("achat", donneesEnvoye);
             model.addAttribute("error", e.getMessage());
-            return "avions/achat-places";
+            return "achats/achat-places";
         }
     }
 
@@ -105,7 +105,7 @@ public class AchatPlacesController {
     @GetMapping("/liste")
     public String listeAchats(Model model) {
         model.addAttribute("achats", achatPlacesService.findAll());
-        return "avions/liste-achats";
+        return "achats/liste-achats";
     }
 
     @PostMapping("/liste/{id}/delete")
