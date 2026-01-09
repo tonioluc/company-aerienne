@@ -1,0 +1,194 @@
+-- -----------------------------
+-- Création de la base
+-- -----------------------------
+DROP DATABASE IF EXISTS aerienne;
+CREATE DATABASE aerienne;
+\c aerienne; -- connexion à la base (PostgreSQL)
+
+-- -----------------------------
+-- Suppression des tables si elles existent
+-- -----------------------------
+DROP TABLE IF EXISTS paiement CASCADE;
+DROP TABLE IF EXISTS billet CASCADE;
+DROP TABLE IF EXISTS reservation_details CASCADE;
+DROP TABLE IF EXISTS reservation CASCADE;
+DROP TABLE IF EXISTS passager CASCADE;
+DROP TABLE IF EXISTS employe CASCADE;
+DROP TABLE IF EXISTS vol CASCADE;
+DROP TABLE IF EXISTS siege_vol CASCADE;
+DROP TABLE IF EXISTS siege CASCADE;
+DROP TABLE IF EXISTS classe CASCADE;
+DROP TABLE IF EXISTS avion CASCADE;
+DROP TABLE IF EXISTS aeroport CASCADE;
+DROP TABLE IF EXISTS pays CASCADE;
+DROP TABLE IF EXISTS mode_paiement CASCADE;
+DROP TABLE IF EXISTS tarif_vol CASCADE;
+
+-- -----------------------------
+-- Table PAYS
+-- -----------------------------
+CREATE TABLE pays (
+    pays_id SERIAL PRIMARY KEY,
+    nom_pays VARCHAR(100) NOT NULL
+);
+
+-- -----------------------------
+-- Table AEROPORT
+-- -----------------------------
+CREATE TABLE aeroport (
+    aeroport_id SERIAL PRIMARY KEY,
+    code VARCHAR(5) NOT NULL UNIQUE,
+    ville VARCHAR(50) NOT NULL,
+    pays_id INT NOT NULL,
+    FOREIGN KEY (pays_id) REFERENCES pays(pays_id)
+);
+
+-- -----------------------------
+-- Table AVION
+-- -----------------------------
+CREATE TABLE avion (
+    avion_id SERIAL PRIMARY KEY,
+    immatriculation VARCHAR(20) NOT NULL UNIQUE,
+    capacite INT NOT NULL CHECK (capacite > 0)
+);
+
+-- -----------------------------
+-- Table CLASSE
+-- -----------------------------
+CREATE TABLE classe (
+    classe_id SERIAL PRIMARY KEY,
+    nom_classe VARCHAR(20) NOT NULL UNIQUE
+);
+
+-- -----------------------------
+-- Table SIEGE
+-- -----------------------------
+CREATE TABLE siege (
+    siege_id SERIAL PRIMARY KEY,
+    avion_id INT NOT NULL,
+    numero_siege VARCHAR(5) NOT NULL,
+    classe_id INT NOT NULL,
+    UNIQUE (avion_id, numero_siege),
+    FOREIGN KEY (avion_id) REFERENCES avion(avion_id),
+    FOREIGN KEY (classe_id) REFERENCES classe(classe_id)
+);
+
+-- -----------------------------
+-- Table VOL
+-- -----------------------------
+CREATE TABLE vol (
+    vol_id SERIAL PRIMARY KEY,
+    numero_vol VARCHAR(20),
+    date_depart TIMESTAMP,
+    date_arrivee TIMESTAMP,
+    aeroport_depart_id INT,
+    aeroport_arrivee_id INT,
+    avion_id INT,
+    FOREIGN KEY (aeroport_depart_id) REFERENCES aeroport(aeroport_id),
+    FOREIGN KEY (aeroport_arrivee_id) REFERENCES aeroport(aeroport_id),
+    FOREIGN KEY (avion_id) REFERENCES avion(avion_id),
+    CHECK (aeroport_depart_id <> aeroport_arrivee_id),
+    CHECK (date_arrivee > date_depart)
+);
+
+-- -----------------------------
+-- Table TARIF_VOL
+-- -----------------------------
+CREATE TABLE tarif_vol (
+    tarif_vol_id SERIAL PRIMARY KEY,
+    vol_id INT NOT NULL,
+    classe_id INT NOT NULL,
+    prix DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (vol_id) REFERENCES vol(vol_id),
+    FOREIGN KEY (classe_id) REFERENCES classe(classe_id),
+    UNIQUE (vol_id, classe_id)
+);
+
+-- -----------------------------
+-- Table EMPLOYE
+-- -----------------------------
+CREATE TABLE employe (
+    employe_id SERIAL PRIMARY KEY,
+    nom VARCHAR(50),
+    prenom VARCHAR(50),
+    poste VARCHAR(50)
+);
+
+-- -----------------------------
+-- Table PASSAGER
+-- -----------------------------
+CREATE TABLE passager (
+    passager_id SERIAL PRIMARY KEY,
+    nom VARCHAR(50),
+    prenom VARCHAR(50),
+    telephone VARCHAR(20)
+);
+
+-- -----------------------------
+-- Table RESERVATION
+-- -----------------------------
+CREATE TABLE reservation (
+    reservation_id SERIAL PRIMARY KEY,
+    vol_id INT NOT NULL,
+    date_reservation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (vol_id) REFERENCES vol(vol_id)
+);
+
+-- -----------------------------
+-- Table RESERVATION_DETAILS
+-- -----------------------------
+CREATE TABLE reservation_details (
+    reservation_details_id SERIAL PRIMARY KEY,
+    reservation_id INT NOT NULL,
+    passager_id INT NOT NULL,
+    siege_id INT NOT NULL,
+    FOREIGN KEY (reservation_id) REFERENCES reservation(reservation_id) ON DELETE CASCADE,
+    FOREIGN KEY (passager_id) REFERENCES passager(passager_id),
+    FOREIGN KEY (siege_id) REFERENCES siege(siege_id),
+    UNIQUE (siege_id, reservation_id) -- un siège réservé une seule fois par réservation
+);
+
+-- -----------------------------
+-- Table SIEGE_VOL
+-- -----------------------------
+CREATE TABLE siege_vol (
+    siege_vol_id SERIAL PRIMARY KEY,
+    vol_id INT NOT NULL,
+    siege_id INT NOT NULL,
+    statut VARCHAR(20) DEFAULT 'libre',  -- 'libre' ou 'reserve'
+    UNIQUE (vol_id, siege_id),
+    FOREIGN KEY (vol_id) REFERENCES vol(vol_id) ON DELETE CASCADE,
+    FOREIGN KEY (siege_id) REFERENCES siege(siege_id)
+);
+
+-- -----------------------------
+-- Table BILLET
+-- -----------------------------
+CREATE TABLE billet (
+    billet_id SERIAL PRIMARY KEY,
+    reservation_details_id INT NOT NULL,
+    numero_billet VARCHAR(20) NOT NULL UNIQUE,
+    date_emission TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (reservation_details_id) REFERENCES reservation_details(reservation_details_id)
+);
+
+-- -----------------------------
+-- Table MODE_PAIEMENT
+-- -----------------------------
+CREATE TABLE mode_paiement (
+    mode_paiement_id SERIAL PRIMARY KEY,
+    libelle VARCHAR(50)
+);
+
+-- -----------------------------
+-- Table PAIEMENT
+-- -----------------------------
+CREATE TABLE paiement (
+    paiement_id SERIAL PRIMARY KEY,
+    reservation_id INT NOT NULL,
+    mode_paiement_id INT NOT NULL,
+    montant DECIMAL(10,2),
+    date_paiement TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (reservation_id) REFERENCES reservation(reservation_id),
+    FOREIGN KEY (mode_paiement_id) REFERENCES mode_paiement(mode_paiement_id)
+);
