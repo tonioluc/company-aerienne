@@ -19,7 +19,7 @@ psql --version
 Les scripts SQL se trouvent dans le dossier `database/` :
 
 - `database/base.sql` : crée la base de données `aerienne` et les tables existantes.
-- `database/data.sql` : insère des données de test dans `avions`.
+- `database/data.sql` : insère des données de test.
 
 Exemples de commandes pour initialiser (utilisateur `postgres`) :
 ```bash
