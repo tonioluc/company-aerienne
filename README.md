@@ -18,7 +18,7 @@ psql --version
 ## Initialisation de la base de données
 Les scripts SQL se trouvent dans le dossier `database/` :
 
-- `database/base.sql` : crée la base de données `aerienne` et la table `avions`.
+- `database/base.sql` : crée la base de données `aerienne` et les tables existantes.
 - `database/data.sql` : insère des données de test dans `avions`.
 
 Exemples de commandes pour initialiser (utilisateur `postgres`) :
@@ -33,7 +33,7 @@ psql
 ```sql
 -- dans psql
 \i /chemin/vers/repo/database/base.sql
-\c aerienne
+
 \i /chemin/vers/repo/database/data.sql
 ```
 ## Configuration de l'application
