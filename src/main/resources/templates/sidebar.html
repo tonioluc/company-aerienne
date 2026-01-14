@@ -1,0 +1,87 @@
+<!-- Sidebar Navigation -->
+<nav class="sidebar bg-dark text-white p-3" style="min-height: 100vh; position: fixed; width: 250px; left: 0; top: 0;">
+    <div class="mb-4">
+        <h3 class="text-center">
+            <i class="fa fa-plane"></i> Navigation
+        </h3>
+        <hr class="bg-light">
+    </div>
+    
+    <ul class="nav flex-column">
+        <li class="nav-item mb-2">
+            <a class="nav-link text-white d-flex align-items-center" th:href="@{/}">
+                <i class="fa fa-home me-2"></i> Accueil
+            </a>
+        </li>
+        
+        <li class="nav-item mb-2">
+            <a class="nav-link text-white d-flex align-items-center" th:href="@{/avions}">
+                <i class="fa fa-plane me-2"></i> Gestion Avions
+            </a>
+        </li>
+        
+        <li class="nav-item mb-2">
+            <a class="nav-link text-white d-flex align-items-center" th:href="@{/achats}">
+                <i class="fa fa-shopping-cart me-2"></i> Acheter des Places
+            </a>
+        </li>
+        
+        <li class="nav-item mb-2">
+            <a class="nav-link text-white d-flex align-items-center" th:href="@{/achats/liste}">
+                <i class="fa fa-list me-2"></i> Liste des Achats
+            </a>
+        </li>
+        
+        <li class="nav-item mb-2">
+            <a class="nav-link text-white d-flex align-items-center" th:href="@{/chiffre-affaires}">
+                <i class="fa fa-bar-chart me-2"></i> Chiffre d'Affaires
+            </a>
+        </li>
+    </ul>
+    
+    <hr class="bg-light mt-4">
+    <div class="text-center text-muted small mt-4">
+        <p>Gestion Aérienne</p>
+        <p>© 2024</p>
+    </div>
+</nav>
+
+<!-- Styles pour la sidebar -->
+<style>
+    body {
+        margin-left: 250px;
+    }
+    
+    .sidebar {
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+    
+    .sidebar .nav-link {
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+        padding-left: 12px !important;
+    }
+    
+    .sidebar .nav-link:hover {
+        background-color: rgba(255,255,255,0.1);
+        border-left-color: #0d6efd;
+        padding-left: 15px !important;
+    }
+    
+    .sidebar .nav-link.active {
+        background-color: rgba(13,110,253,0.2);
+        border-left-color: #0d6efd;
+    }
+    
+    @media (max-width: 768px) {
+        body {
+            margin-left: 0;
+        }
+        
+        .sidebar {
+            width: 100%;
+            position: relative;
+            min-height: auto;
+        }
+    }
+</style>
