@@ -75,31 +75,3 @@ CREATE TABLE prix_vol(
    FOREIGN KEY(Id_vol) REFERENCES vol(Id_vol),
    FOREIGN KEY(Id_classe_place) REFERENCES classe_place(Id_classe_place)
 );
-
-
--- Vue pour calculer le chiffre d'affaires par vol
--- Vue pour calculer le chiffre d'affaires par vol (inclut info avion)
--- CREATE VIEW v_chiffre_affaires_vol AS
--- SELECT
---    v.Id_vol,
---    v.date_heure_depart,
---    v.date_heure_arrive,
---    v.prix_place,
---    t.numero_vol,
---    v.Id_avion,
---    a.modele AS avion_modele,
---    a.capacite AS avion_capacite,
---    COALESCE(SUM(CAST(ap.nombre_place AS INTEGER)), 0) AS total_places_vendues,
---    COALESCE(SUM(CAST(ap.nombre_place AS INTEGER) * v.prix_place), 0) AS chiffre_affaires
--- FROM vol v
--- JOIN trajet t ON v.Id_trajet = t.Id_trajet
--- JOIN avion a ON v.Id_avion = a.Id_avion
--- LEFT JOIN achat_places ap ON v.Id_vol = ap.Id_vol
--- GROUP BY v.Id_vol, v.date_heure_depart, v.date_heure_arrive, v.prix_place, t.numero_vol, v.Id_avion, a.modele, a.capacite;
-
--- -- Vue pour le chiffre d'affaires global
--- CREATE VIEW v_chiffre_affaires_total AS
--- SELECT 
---    SUM(chiffre_affaires) AS chiffre_affaires_total,
---    SUM(total_places_vendues) AS total_places_vendues
--- FROM v_chiffre_affaires_vol;
