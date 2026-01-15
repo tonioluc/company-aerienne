@@ -6,6 +6,7 @@ import itu.company.aerienne.model.Vol;
 import itu.company.aerienne.service.AchatPlacesService;
 import itu.company.aerienne.service.AeroportService;
 import itu.company.aerienne.service.VolService;
+import itu.company.aerienne.repository.ClassPlaceRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,9 +30,13 @@ public class AchatPlacesController {
     @Autowired
     private AchatPlacesService achatPlacesService;
 
+    @Autowired
+    private ClassPlaceRepository classPlaceRepository;
+
     @GetMapping
     public String showForm(Model model) {
         model.addAttribute("aeroports", aeroportService.findAll());
+        model.addAttribute("classes", classPlaceRepository.findAll());
         model.addAttribute("achat", new AchatPlacesFormDto());
         return "achats/achat-places";
     }
@@ -49,22 +54,40 @@ public class AchatPlacesController {
             session.setAttribute("achatForm", donneesEnvoye);
 
             // Récupérer les vols disponibles
-            Map<Vol, Integer> volsDisponibles = volService.getVolDisponible(
+                Map<Vol, Integer> volsDisponibles = volService.getVolDisponible(
                     donneesEnvoye.getAeroportDepartId(),
                     donneesEnvoye.getAeroportArriveId(),
                     donneesEnvoye.getPlaces()
-            );
+                );
+
+                // Disponibilité par classe
+                var volsDisponiblesParClasse = volService.getVolDisponibleParClasse(
+                    donneesEnvoye.getAeroportDepartId(),
+                    donneesEnvoye.getAeroportArriveId(),
+                    donneesEnvoye.getPlaces(),
+                    donneesEnvoye.getIdClassePlace()
+                );
+
+                // Libellé de la classe choisie
+                String classeChoisieLibelle = null;
+                if (donneesEnvoye.getIdClassePlace() != null) {
+                var opt = classPlaceRepository.findById(donneesEnvoye.getIdClassePlace());
+                if (opt.isPresent()) classeChoisieLibelle = opt.get().getLibelle();
+                }
 
             // Passer les données à la vue
             model.addAttribute("volsDisponibles", volsDisponibles);
+            model.addAttribute("volsDisponiblesParClasse", volsDisponiblesParClasse);
             model.addAttribute("clientNom", donneesEnvoye.getClientNomComplet());
             model.addAttribute("placeDemandee", donneesEnvoye.getPlaces());
+            model.addAttribute("classeChoisie", classeChoisieLibelle);
 
             return "achats/liste-vol-dispo";
 
         } catch (IllegalArgumentException e) {
             // Erreur de validation: retourner au formulaire avec message
             model.addAttribute("aeroports", aeroportService.findAll());
+            model.addAttribute("classes", classPlaceRepository.findAll());
             model.addAttribute("achat", donneesEnvoye);
             model.addAttribute("error", e.getMessage());
             return "achats/achat-places";
@@ -89,6 +112,7 @@ public class AchatPlacesController {
         achat.setNomClient(achatForm.getClientNomComplet());
         achat.setNombrePlace(String.valueOf(achatForm.getPlaces()));
         achat.setIdVol(idVol);
+        achat.setIdClassePlace(achatForm.getIdClassePlace());
 
         achatPlacesService.save(achat);
 

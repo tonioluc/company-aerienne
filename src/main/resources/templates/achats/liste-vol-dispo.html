@@ -21,31 +21,39 @@
 
 	<div class="alert alert-info" th:if="${clientNom}">
 		<strong>Client :</strong> <span th:text="${clientNom}"></span> &mdash;
-		<strong>Places demandées :</strong> <span th:text="${placeDemandee}"></span>
+		<strong>Places demandées :</strong> <span th:text="${placeDemandee}"></span> &mdash;
+		<strong>Classe choisie :</strong> <span th:text="${classeChoisie}">-</span>
 	</div>
 
-	<div class="alert alert-warning" th:if="${#maps.isEmpty(volsDisponibles)}">
+	<div class="alert alert-warning" th:if="${#lists.isEmpty(volsDisponiblesParClasse)}">
 		Aucun vol disponible pour les critères sélectionnés.
 	</div>
 
-	<div class="table-responsive" th:if="${!#maps.isEmpty(volsDisponibles)}">
+	<div class="table-responsive" th:if="${!#lists.isEmpty(volsDisponiblesParClasse)}">
 		<table class="table table-bordered table-striped align-middle">
 			<thead class="table-light">
 			<tr>
 				<th>Date & heure départ</th>
 				<th>Date & heure arrivée</th>
-				<th>Places disponibles</th>
+				<th>Places disponibles par classe</th>
 				<th>Action</th>
 			</tr>
 			</thead>
 			<tbody>
-			<tr th:each="entry : ${volsDisponibles}">
-				<td th:text="${#temporals.format(entry.key.dateHeureDepart, 'yyyy-MM-dd HH:mm')}"></td>
-				<td th:text="${#temporals.format(entry.key.dateHeureArrive, 'yyyy-MM-dd HH:mm')}"></td>
-				<td th:text="${entry.value}"></td>
+			<tr th:each="vd : ${volsDisponiblesParClasse}">
+				<td th:text="${#temporals.format(vd.vol.dateHeureDepart, 'yyyy-MM-dd HH:mm')}"></td>
+				<td th:text="${#temporals.format(vd.vol.dateHeureArrive, 'yyyy-MM-dd HH:mm')}"></td>
+				<td>
+					<span th:each="c : ${vd.disponibilites}" 
+					      class="badge me-1"
+					      th:classappend="${c.libelle == classeChoisie} ? 'bg-success text-white' : 'bg-light text-dark'">
+						<span th:text="${c.libelle}"></span>:
+						<span th:text="${c.placesDisponibles}"></span>
+					</span>
+				</td>
 				<td>
 					<a class="btn btn-primary btn-sm" 
-					   th:href="@{/achats/prendre/{idVol}(idVol=${entry.key.idVol})}">
+					   th:href="@{/achats/prendre/{idVol}(idVol=${vd.vol.idVol})}">
 						<i class="fa fa-ticket"></i> Prendre
 					</a>
 				</td>
