@@ -29,6 +29,7 @@
             <tr>
                 <th>ID</th>
                 <th>Nom Client</th>
+                <th>Classe</th>
                 <th>Nombre de Places</th>
                 <th>ID Vol</th>
                 <th>Actions</th>
@@ -38,6 +39,7 @@
             <tr th:each="achat : ${achats}">
                 <td th:text="${achat.idAchatPlaces}"></td>
                 <td th:text="${achat.nomClient}"></td>
+                <td th:text="${achat.idClassePlace}"></td>
                 <td th:text="${achat.nombrePlace}"></td>
                 <td th:text="${achat.idVol}"></td>
                 <td>
