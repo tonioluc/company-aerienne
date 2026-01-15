@@ -2,12 +2,18 @@ package itu.company.aerienne.service;
 
 import itu.company.aerienne.dto.AchatDetailDto;
 import itu.company.aerienne.dto.VolChiffreAffaireDto;
+import itu.company.aerienne.dto.VolDisponibiliteDto;
+import itu.company.aerienne.dto.ClasseDisponibiliteDto;
 import itu.company.aerienne.model.AchatPlaces;
+import itu.company.aerienne.model.ClassePlace;
+import itu.company.aerienne.model.PrixVol;
 import itu.company.aerienne.model.Vol;
-import itu.company.aerienne.model.VolAvion;
+import itu.company.aerienne.model.Avion;
 import itu.company.aerienne.repository.VolRepository;
-import itu.company.aerienne.repository.VolAvionRepository;
+import itu.company.aerienne.repository.AvionRepository;
 import itu.company.aerienne.repository.AchatPlacesRepository;
+import itu.company.aerienne.repository.PrixVolRepository;
+import itu.company.aerienne.repository.ClassPlaceRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,11 +33,20 @@ public class VolService {
     @Autowired
     private VolRepository repository;
 
-    @Autowired
-    private VolAvionRepository volAvionRepository;
+    // @Autowired
+    // private VolAvionRepository volAvionRepository;
 
     @Autowired
     private AchatPlacesRepository achatPlacesRepository;
+
+    @Autowired
+    private PrixVolRepository prixVolRepository;
+
+    @Autowired
+    private ClassPlaceRepository classePlaceRepository;
+
+    @Autowired
+    private AvionRepository avionRepository;
 
     public List<Vol> findAll() {
         return repository.findAll();
@@ -51,6 +66,7 @@ public class VolService {
 
     /**
      * Retourne les vols d'une date donnée avec leurs détails de chiffre d'affaires.
+     * Utilise la table prix_vol pour obtenir les prix par classe.
      */
     public List<VolChiffreAffaireDto> getChiffreAffaireDetailByDate(LocalDate date) {
         List<VolChiffreAffaireDto> result = new ArrayList<>();
@@ -63,7 +79,13 @@ public class VolService {
             dto.setIdVol(vol.getIdVol());
             dto.setDateHeureDepart(vol.getDateHeureDepart() != null ? vol.getDateHeureDepart().format(formatter) : "");
             dto.setDateHeureArrive(vol.getDateHeureArrive() != null ? vol.getDateHeureArrive().format(formatter) : "");
-            dto.setPrixPlace(vol.getPrixPlace() != null ? vol.getPrixPlace() : BigDecimal.ZERO);
+
+            // Récupérer tous les prix pour ce vol (pour lookup rapide)
+            List<PrixVol> prixVolList = prixVolRepository.findByIdVol(vol.getIdVol());
+            Map<Integer, PrixVol> prixParClasse = new HashMap<>();
+            for (PrixVol pv : prixVolList) {
+                prixParClasse.put(pv.getIdClassePlace(), pv);
+            }
 
             // Récupérer les achats pour ce vol
             List<AchatPlaces> achats = achatPlacesRepository.findByIdVol(vol.getIdVol());
@@ -79,7 +101,22 @@ public class VolService {
                     nbPlaces = 0;
                 }
 
-                BigDecimal prixUnitaire = vol.getPrixPlace() != null ? vol.getPrixPlace() : BigDecimal.ZERO;
+                // Récupérer le prix unitaire depuis prix_vol via la classe de place
+                BigDecimal prixUnitaire = BigDecimal.ZERO;
+                String classeLibelle = "";
+                Integer idClassePlace = achat.getIdClassePlace();
+                
+                if (idClassePlace != null && prixParClasse.containsKey(idClassePlace)) {
+                    PrixVol prixVol = prixParClasse.get(idClassePlace);
+                    prixUnitaire = prixVol.getPrix() != null ? BigDecimal.valueOf(prixVol.getPrix()) : BigDecimal.ZERO;
+                    
+                    // Récupérer le libellé de la classe
+                    Optional<ClassePlace> classeOpt = classePlaceRepository.findById(idClassePlace);
+                    if (classeOpt.isPresent()) {
+                        classeLibelle = classeOpt.get().getLibelle();
+                    }
+                }
+                
                 BigDecimal prixTotal = prixUnitaire.multiply(BigDecimal.valueOf(nbPlaces));
 
                 AchatDetailDto achatDetail = new AchatDetailDto();
@@ -88,6 +125,7 @@ public class VolService {
                 achatDetail.setNombrePlaces(nbPlaces);
                 achatDetail.setPrixUnitaire(prixUnitaire);
                 achatDetail.setPrixTotal(prixTotal);
+                achatDetail.setClasseLibelle(classeLibelle);
 
                 dto.addAchat(achatDetail);
 
@@ -135,19 +173,75 @@ public class VolService {
             // Ajouter le vol seulement s'il a assez de places
             if (placesDisponibles >= nombrePlaceEntre) {
                 volsDisponibles.put(vol, placesDisponibles);
-            }
+            }   
         }
 
         return volsDisponibles;
     }
 
     /**
+     * Retourne la disponibilité par classe pour les vols d'un trajet.
+     * Filtre les vols si la classe choisie n'existe pas ou n'a pas assez de places.
+     */
+    public List<VolDisponibiliteDto> getVolDisponibleParClasse(int idAeroportDepart, int idAeroportArrive, int nombrePlaceEntre, Integer idClassePlaceChoisie) {
+        List<VolDisponibiliteDto> result = new ArrayList<>();
+        List<Vol> vols = repository.findByAeroports(idAeroportDepart, idAeroportArrive);
+
+        for (Vol vol : vols) {
+            // Récupérer prix/places par classe pour ce vol
+            List<PrixVol> prixVols = prixVolRepository.findByIdVol(vol.getIdVol());
+            List<ClasseDisponibiliteDto> classes = new ArrayList<>();
+
+            boolean classeChoisieExiste = false;
+            boolean enoughInChosenClass = false;
+
+            for (PrixVol pv : prixVols) {
+                // total réservé pour cette classe
+                Integer reserved = achatPlacesRepository.getTotalPlacesAcheteesByVolAndClasse(vol.getIdVol(), pv.getIdClassePlace());
+                if (reserved == null) reserved = 0;
+                int available = (pv.getNbrPlaces() != null ? pv.getNbrPlaces() : 0) - reserved;
+
+                // Libellé de la classe
+                String libelle = "";
+                Optional<ClassePlace> classeOpt = classePlaceRepository.findById(pv.getIdClassePlace());
+                if (classeOpt.isPresent()) libelle = classeOpt.get().getLibelle();
+
+                classes.add(new ClasseDisponibiliteDto(pv.getIdClassePlace(), libelle, available));
+
+                // Vérifier si c'est la classe choisie
+                if (idClassePlaceChoisie != null && pv.getIdClassePlace().equals(idClassePlaceChoisie)) {
+                    classeChoisieExiste = true;
+                    enoughInChosenClass = available >= nombrePlaceEntre;
+                }
+            }
+
+            // Si aucune classe choisie, afficher tous les vols
+            // Sinon, ne garder que les vols où la classe existe ET a assez de places
+            if (idClassePlaceChoisie == null || (classeChoisieExiste && enoughInChosenClass)) {
+                result.add(new VolDisponibiliteDto(vol, classes));
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Calcule la capacité totale d'un vol basée sur les avions affectés.
      */
     private int getCapaciteTotaleVol(Integer idVol) {
-        List<VolAvion> volAvions = volAvionRepository.findByIdVol(idVol);
-        // Pour simplifier, on suppose une capacité par défaut si pas d'avion affecté
-        // Dans un vrai système, on récupérerait la capacité de chaque avion
-        return volAvions.size() > 0 ? volAvions.size() * 150 : 150; // 150 places par défaut
+        // Default capacity if anything missing
+        final int DEFAULT_CAPACITY = 150;
+
+        Optional<Vol> volOpt = repository.findById(idVol);
+        if (!volOpt.isPresent()) return DEFAULT_CAPACITY;
+        Vol vol = volOpt.get();
+        Integer idAvion = vol.getIdAvion();
+        if (idAvion == null) return DEFAULT_CAPACITY;
+
+        Optional<Avion> avionOpt = avionRepository.findById(idAvion);
+        if (!avionOpt.isPresent()) return DEFAULT_CAPACITY;
+
+        Integer capacite = avionOpt.get().getCapacite();
+        return capacite != null ? capacite : DEFAULT_CAPACITY;
     }
 }

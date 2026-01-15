@@ -20,8 +20,12 @@ public interface AchatPlacesRepository extends JpaRepository<AchatPlaces, Intege
            "WHERE CAST(v.dateHeureDepart AS LocalDate) = :date")
     Integer getTotalPlacesVenduesByDate(@Param("date") LocalDate date);
 
-    @Query("SELECT COALESCE(SUM(CAST(a.nombrePlace AS int) * v.prixPlace), 0) FROM AchatPlaces a " +
+    @Query("SELECT COALESCE(SUM(CAST(a.nombrePlace AS int) * pv.prix), 0) FROM AchatPlaces a " +
            "JOIN Vol v ON a.idVol = v.idVol " +
+           "JOIN PrixVol pv ON pv.idVol = a.idVol AND pv.idClassePlace = a.idClassePlace " +
            "WHERE CAST(v.dateHeureDepart AS LocalDate) = :date")
     java.math.BigDecimal getChiffreAffairesByDate(@Param("date") LocalDate date);
+
+       @Query("SELECT COALESCE(SUM(CAST(a.nombrePlace AS int)), 0) FROM AchatPlaces a WHERE a.idVol = :idVol AND a.idClassePlace = :idClassePlace")
+       Integer getTotalPlacesAcheteesByVolAndClasse(@Param("idVol") Integer idVol, @Param("idClassePlace") Integer idClassePlace);
 }

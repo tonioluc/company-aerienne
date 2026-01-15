@@ -9,7 +9,6 @@ public class VolChiffreAffaireDto {
     private Integer idVol;
     private String dateHeureDepart;
     private String dateHeureArrive;
-    private BigDecimal prixPlace;
     private Integer totalPlacesVendues;
     private BigDecimal chiffreAffaires;
     private List<AchatDetailDto> achats;
@@ -42,14 +41,6 @@ public class VolChiffreAffaireDto {
 
     public void setDateHeureArrive(String dateHeureArrive) {
         this.dateHeureArrive = dateHeureArrive;
-    }
-
-    public BigDecimal getPrixPlace() {
-        return prixPlace;
-    }
-
-    public void setPrixPlace(BigDecimal prixPlace) {
-        this.prixPlace = prixPlace;
     }
 
     public Integer getTotalPlacesVendues() {

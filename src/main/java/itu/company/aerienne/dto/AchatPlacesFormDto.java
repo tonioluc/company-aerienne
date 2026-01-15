@@ -5,6 +5,7 @@ public class AchatPlacesFormDto {
     private Integer aeroportDepartId;
     private Integer aeroportArriveId;
     private Integer places;
+    private Integer idClassePlace;
 
     public String getClientNomComplet() {
         return clientNomComplet;
@@ -36,6 +37,14 @@ public class AchatPlacesFormDto {
 
     public void setPlaces(Integer places) {
         this.places = places;
+    }
+
+    public Integer getIdClassePlace() {
+        return idClassePlace;
+    }
+
+    public void setIdClassePlace(Integer idClassePlace) {
+        this.idClassePlace = idClassePlace;
     }
 
     /**

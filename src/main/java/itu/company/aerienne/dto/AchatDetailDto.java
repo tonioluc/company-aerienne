@@ -9,6 +9,7 @@ public class AchatDetailDto {
     private Integer nombrePlaces;
     private BigDecimal prixUnitaire;
     private BigDecimal prixTotal;
+    private String classeLibelle;
 
     public AchatDetailDto() {
     }
@@ -59,5 +60,13 @@ public class AchatDetailDto {
 
     public void setPrixTotal(BigDecimal prixTotal) {
         this.prixTotal = prixTotal;
+    }
+
+    public String getClasseLibelle() {
+        return classeLibelle;
+    }
+
+    public void setClasseLibelle(String classeLibelle) {
+        this.classeLibelle = classeLibelle;
     }
 }

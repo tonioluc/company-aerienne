@@ -19,21 +19,21 @@ public class Vol {
     @Column(name = "date_heure_arrive")
     private LocalDateTime dateHeureArrive;
 
-    @Column(name = "prix_place")
-    private BigDecimal prixPlace;
+    @Column(name = "Id_avion", nullable = false)
+    private Integer idAvion;
 
-    @Column(name = "Id_modele_vol", nullable = false)
-    private Integer idModeleVol;
+    @Column(name = "Id_trajet", nullable = false)
+    private Integer idTrajet;
 
     public Vol() {
     }
 
-    public Vol(Integer idVol, LocalDateTime dateHeureDepart, LocalDateTime dateHeureArrive, BigDecimal prixPlace, Integer idModeleVol) {
+    public Vol(Integer idVol, LocalDateTime dateHeureDepart, LocalDateTime dateHeureArrive, Integer idAvion, Integer idTrajet) {
         this.idVol = idVol;
         this.dateHeureDepart = dateHeureDepart;
         this.dateHeureArrive = dateHeureArrive;
-        this.prixPlace = prixPlace;
-        this.idModeleVol = idModeleVol;
+        this.idAvion = idAvion;
+        this.idTrajet = idTrajet;
     }
 
     public Integer getIdVol() {
@@ -60,19 +60,19 @@ public class Vol {
         this.dateHeureArrive = dateHeureArrive;
     }
 
-    public BigDecimal getPrixPlace() {
-        return prixPlace;
+    public Integer getIdTrajet() {
+        return idTrajet;
     }
 
-    public void setPrixPlace(BigDecimal prixPlace) {
-        this.prixPlace = prixPlace;
+    public void setIdTrajet(Integer idTrajet) {
+        this.idTrajet = idTrajet;
     }
 
-    public Integer getIdModeleVol() {
-        return idModeleVol;
+    public Integer getIdAvion() {
+        return idAvion;
     }
 
-    public void setIdModeleVol(Integer idModeleVol) {
-        this.idModeleVol = idModeleVol;
+    public void setIdAvion(Integer idAvion) {
+        this.idAvion = idAvion;
     }
 }

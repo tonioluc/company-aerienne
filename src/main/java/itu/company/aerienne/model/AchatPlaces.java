@@ -11,6 +11,9 @@ public class AchatPlaces {
     @Column(name = "Id_achat_places")
     private Integer idAchatPlaces;
 
+    @Column(name = "Id_classe_place")
+    private Integer idClassePlace;
+
     @Column(name = "nom_client", length = 50)
     private String nomClient;
 
@@ -23,8 +26,9 @@ public class AchatPlaces {
     public AchatPlaces() {
     }
 
-    public AchatPlaces(Integer idAchatPlaces, String nomClient, String nombrePlace, Integer idVol) {
+    public AchatPlaces(Integer idAchatPlaces, Integer idClassePlace, String nomClient, String nombrePlace, Integer idVol) {
         this.idAchatPlaces = idAchatPlaces;
+        this.idClassePlace = idClassePlace;
         this.nomClient = nomClient;
         this.nombrePlace = nombrePlace;
         this.idVol = idVol;
@@ -60,5 +64,13 @@ public class AchatPlaces {
 
     public void setIdVol(Integer idVol) {
         this.idVol = idVol;
+    }
+
+    public Integer getIdClassePlace() {
+        return idClassePlace;
+    }
+
+    public void setIdClassePlace(Integer idClassePlace) {
+        this.idClassePlace = idClassePlace;
     }
 }

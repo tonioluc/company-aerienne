@@ -3,16 +3,13 @@ package itu.company.aerienne.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "modele_vol")
-public class ModeleVol {
+@Table(name = "trajet")
+public class Trajet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "Id_modele_vol")
-    private Integer idModeleVol;
-
-    @Column(name = "numero_vol", length = 50)
-    private String numeroVol;
+    @Column(name = "Id_trajet")
+    private Integer idTrajet;
 
     @Column(name = "Id_aeroport_depart", nullable = false)
     private Integer idAeroportDepart;
@@ -20,30 +17,21 @@ public class ModeleVol {
     @Column(name = "Id_aeroport_arrive", nullable = false)
     private Integer idAeroportArrive;
 
-    public ModeleVol() {
+    public Trajet() {
     }
 
-    public ModeleVol(Integer idModeleVol, String numeroVol, Integer idAeroportDepart, Integer idAeroportArrive) {
-        this.idModeleVol = idModeleVol;
-        this.numeroVol = numeroVol;
+    public Trajet(Integer idTrajet, String numeroVol, Integer idAeroportDepart, Integer idAeroportArrive) {
+        this.idTrajet = idTrajet;
         this.idAeroportDepart = idAeroportDepart;
         this.idAeroportArrive = idAeroportArrive;
     }
 
-    public Integer getIdModeleVol() {
-        return idModeleVol;
+    public Integer getIdTrajet() {
+        return idTrajet;
     }
 
-    public void setIdModeleVol(Integer idModeleVol) {
-        this.idModeleVol = idModeleVol;
-    }
-
-    public String getNumeroVol() {
-        return numeroVol;
-    }
-
-    public void setNumeroVol(String numeroVol) {
-        this.numeroVol = numeroVol;
+    public void setIdTrajet(Integer idTrajet) {
+        this.idTrajet = idTrajet;
     }
 
     public Integer getIdAeroportDepart() {
