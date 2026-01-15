@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface VolRepository extends JpaRepository<Vol, Integer> {
 
-        @Query("SELECT v FROM Vol v WHERE v.idTrajet IN " +
+    @Query("SELECT v FROM Vol v WHERE v.idTrajet IN " +
             "(SELECT t.idTrajet FROM Trajet t WHERE t.idAeroportDepart = :idDepart AND t.idAeroportArrive = :idArrive)")
-        List<Vol> findByAeroports(@Param("idDepart") Integer idAeroportDepart, @Param("idArrive") Integer idAeroportArrive);
+    List<Vol> findByAeroports(@Param("idDepart") Integer idAeroportDepart, @Param("idArrive") Integer idAeroportArrive);
 
     @Query("SELECT v FROM Vol v WHERE CAST(v.dateHeureDepart AS LocalDate) = :date")
     List<Vol> findByDate(@Param("date") LocalDate date);
