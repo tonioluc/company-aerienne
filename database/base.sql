@@ -55,16 +55,6 @@ CREATE TABLE achat_places(
 );
 
 
--- CREATE TABLE vol_avion(
---    Id_avion INTEGER,
---    Id_vol INTEGER,
---    numero INTEGER,
---    PRIMARY KEY(Id_avion, Id_vol),
---    FOREIGN KEY(Id_avion) REFERENCES avion(Id_avion),
---    FOREIGN KEY(Id_vol) REFERENCES vol(Id_vol)
--- );
-
-
 CREATE TABLE prix_vol(
    Id_prix_vol SERIAL,
    Id_vol INTEGER NOT NULL,
