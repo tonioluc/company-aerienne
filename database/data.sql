@@ -28,6 +28,22 @@ INSERT INTO classe_place (libelle) VALUES
 -- Premium (id 2): 40 places à 1 000 000 Ar  
 -- Économique (id 1): 50 places à 700 000 Ar
 INSERT INTO prix_vol (Id_vol, Id_classe_place, prix, nbr_places) VALUES
-(1, 3, 1200000, 30),  -- Première
+(1, 3, 2000000, 30),  -- Première
 (1, 2, 1000000, 40),  -- Premium
-(1, 1, 700000, 50);   -- Économique
+(1, 1, 800000, 50);   -- Économique
+
+INSERT INTO categorie_client (libelle) VALUES
+('Enfant'),
+('Bébé');
+
+-- Enfant (id=1): prix fixe (le champ prix est utilisé en priorité)
+INSERT INTO prix_par_categorie (Id_categorie_personne, Id_classe_place, prix, pourcentage) VALUES
+(1, 1, 600000, NULL),  -- Enfant: Économique à 500 000 Ar (prix fixe)
+(1, 2, 700000, NULL),  -- Enfant: Premium à 800 000 Ar (prix fixe)
+(1, 3, 800000, NULL); -- Enfant: Première à 1 000 000 Ar (prix fixe)
+
+-- Bébé (id=2): pourcentage du prix de base (prix = NULL donc on utilise pourcentage)
+INSERT INTO prix_par_categorie (Id_categorie_personne, Id_classe_place, prix, pourcentage) VALUES
+(2, 1, NULL, 10),  -- Bébé: Économique à 10% de 700 000 = 70 000 Ar
+(2, 2, NULL, 10),  -- Bébé: Premium à 10% de 1 000 000 = 100 000 Ar
+(2, 3, NULL, 10);  -- Bébé: Première à 10% de 1 200 000 = 120 000 Ar

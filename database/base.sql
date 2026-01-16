@@ -43,15 +43,23 @@ CREATE TABLE classe_place(
    PRIMARY KEY(Id_classe_place)
 );
 
+CREATE TABLE categorie_client(
+   Id_categorie_client SERIAL,
+   libelle VARCHAR(50),
+   PRIMARY KEY(Id_categorie_client)
+);
+
 CREATE TABLE achat_places(
    Id_achat_places SERIAL,
    Id_classe_place INTEGER,
+   Id_categorie_client INTEGER,
    nom_client VARCHAR(50) ,
    nombre_place VARCHAR(50) ,
    Id_vol INTEGER NOT NULL,
    PRIMARY KEY(Id_achat_places),
    FOREIGN KEY(Id_vol) REFERENCES vol(Id_vol),
-   FOREIGN KEY(Id_classe_place) REFERENCES classe_place(Id_classe_place)
+   FOREIGN KEY(Id_classe_place) REFERENCES classe_place(Id_classe_place),
+   FOREIGN KEY(Id_categorie_client) REFERENCES categorie_client(Id_categorie_client)
 );
 
 
@@ -63,5 +71,16 @@ CREATE TABLE prix_vol(
    nbr_places INTEGER DEFAULT 0,
    PRIMARY KEY(Id_prix_vol),
    FOREIGN KEY(Id_vol) REFERENCES vol(Id_vol),
+   FOREIGN KEY(Id_classe_place) REFERENCES classe_place(Id_classe_place)
+);
+
+CREATE TABLE prix_par_categorie(
+   Id_prix_categorie SERIAL,
+   Id_categorie_personne INTEGER NOT NULL,
+   Id_classe_place INTEGER NOT NULL,
+   prix NUMERIC(15,2) DEFAULT NULL,
+   pourcentage NUMERIC(15,2) DEFAULT 0, -- Pourcentage de prix par rapport au prix_vol
+   PRIMARY KEY(Id_prix_categorie),
+   FOREIGN KEY(Id_categorie_personne) REFERENCES categorie_client(Id_categorie_client),
    FOREIGN KEY(Id_classe_place) REFERENCES classe_place(Id_classe_place)
 );
