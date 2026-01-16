@@ -5,13 +5,17 @@ import itu.company.aerienne.dto.VolChiffreAffaireDto;
 import itu.company.aerienne.dto.VolDisponibiliteDto;
 import itu.company.aerienne.dto.ClasseDisponibiliteDto;
 import itu.company.aerienne.model.AchatPlaces;
+import itu.company.aerienne.model.CategorieClient;
 import itu.company.aerienne.model.ClassePlace;
+import itu.company.aerienne.model.PrixParCategorie;
 import itu.company.aerienne.model.PrixVol;
 import itu.company.aerienne.model.Vol;
 import itu.company.aerienne.model.Avion;
 import itu.company.aerienne.repository.VolRepository;
 import itu.company.aerienne.repository.AvionRepository;
 import itu.company.aerienne.repository.AchatPlacesRepository;
+import itu.company.aerienne.repository.CategorieClientRepository;
+import itu.company.aerienne.repository.PrixParCategorieRepository;
 import itu.company.aerienne.repository.PrixVolRepository;
 import itu.company.aerienne.repository.ClassPlaceRepository;
 
@@ -48,6 +52,12 @@ public class VolService {
     @Autowired
     private AvionRepository avionRepository;
 
+    @Autowired
+    private PrixParCategorieRepository prixParCategorieRepository;
+
+    @Autowired
+    private CategorieClientRepository categorieClientRepository;
+
     public List<Vol> findAll() {
         return repository.findAll();
     }
@@ -66,7 +76,13 @@ public class VolService {
 
     /**
      * Retourne les vols d'une date donnée avec leurs détails de chiffre d'affaires.
-     * Utilise la table prix_vol pour obtenir les prix par classe.
+     * 
+     * Logique de calcul du prix :
+     * 1. Si l'achat a un idCategorieClient, on cherche un prix spécial dans
+     * prix_par_categorie
+     * 2. Si pas de prix spécial pour cette catégorie/classe, on prend le prix de
+     * prix_vol
+     * 3. Si idCategorieClient est null, on prend directement le prix de prix_vol
      */
     public List<VolChiffreAffaireDto> getChiffreAffaireDetailByDate(LocalDate date) {
         List<VolChiffreAffaireDto> result = new ArrayList<>();
@@ -80,6 +96,15 @@ public class VolService {
             dto.setDateHeureDepart(vol.getDateHeureDepart() != null ? vol.getDateHeureDepart().format(formatter) : "");
             dto.setDateHeureArrive(vol.getDateHeureArrive() != null ? vol.getDateHeureArrive().format(formatter) : "");
 
+            // Récupérer le modèle de l'avion pour description
+            if (vol.getIdAvion() != null) {
+                Optional<Avion> avionOpt = avionRepository.findById(vol.getIdAvion());
+                if (avionOpt.isPresent()) {
+                    dto.setAvionModele(avionOpt.get().getModele());
+                    dto.setAvionCapacite(avionOpt.get().getCapacite());
+                }
+            }
+
             // Récupérer tous les prix pour ce vol (pour lookup rapide)
             List<PrixVol> prixVolList = prixVolRepository.findByIdVol(vol.getIdVol());
             Map<Integer, PrixVol> prixParClasse = new HashMap<>();
@@ -89,7 +114,7 @@ public class VolService {
 
             // Récupérer les achats pour ce vol
             List<AchatPlaces> achats = achatPlacesRepository.findByIdVol(vol.getIdVol());
-            
+
             int totalPlaces = 0;
             BigDecimal totalCA = BigDecimal.ZERO;
 
@@ -101,22 +126,65 @@ public class VolService {
                     nbPlaces = 0;
                 }
 
-                // Récupérer le prix unitaire depuis prix_vol via la classe de place
                 BigDecimal prixUnitaire = BigDecimal.ZERO;
                 String classeLibelle = "";
+                String categorieLibelle = null;
                 Integer idClassePlace = achat.getIdClassePlace();
-                
-                if (idClassePlace != null && prixParClasse.containsKey(idClassePlace)) {
-                    PrixVol prixVol = prixParClasse.get(idClassePlace);
-                    prixUnitaire = prixVol.getPrix() != null ? BigDecimal.valueOf(prixVol.getPrix()) : BigDecimal.ZERO;
-                    
-                    // Récupérer le libellé de la classe
+                Integer idCategorieClient = achat.getIdCategorieClient();
+
+                // Récupérer le libellé de la classe
+                if (idClassePlace != null) {
                     Optional<ClassePlace> classeOpt = classePlaceRepository.findById(idClassePlace);
                     if (classeOpt.isPresent()) {
                         classeLibelle = classeOpt.get().getLibelle();
                     }
                 }
-                
+
+                // Récupérer le libellé de la catégorie si elle existe
+                if (idCategorieClient != null) {
+                    Optional<CategorieClient> categorieOpt = categorieClientRepository.findById(idCategorieClient);
+                    if (categorieOpt.isPresent()) {
+                        categorieLibelle = categorieOpt.get().getLibelle();
+                    }
+                }
+
+                // Logique de calcul du prix
+                // D'abord récupérer le prix de base depuis prix_vol pour cette classe
+                BigDecimal prixBase = BigDecimal.ZERO;
+                if (idClassePlace != null && prixParClasse.containsKey(idClassePlace)) {
+                    PrixVol prixVol = prixParClasse.get(idClassePlace);
+                    prixBase = prixVol.getPrix() != null ? BigDecimal.valueOf(prixVol.getPrix()) : BigDecimal.ZERO;
+                }
+
+                if (idCategorieClient != null && idClassePlace != null) {
+                    // Chercher un prix ou pourcentage pour cette catégorie et classe
+                    Optional<PrixParCategorie> prixSpecialOpt = prixParCategorieRepository
+                            .findByIdCategoriePersonneAndIdClassePlace(idCategorieClient, idClassePlace);
+
+                    if (prixSpecialOpt.isPresent()) {
+                        PrixParCategorie ppc = prixSpecialOpt.get();
+                        if (ppc.getPrix() != null) {
+                            // Prix fixe défini, l'utiliser directement
+                            prixUnitaire = BigDecimal.valueOf(ppc.getPrix());
+                        } else if (ppc.getPourcentage() != null) {
+                            // Pas de prix fixe, calculer avec le pourcentage
+                            // prixUnitaire = prixBase * pourcentage / 100
+                            Double pourcentage = ppc.getPourcentage();
+                            prixUnitaire = prixBase.multiply(BigDecimal.valueOf(pourcentage))
+                                    .divide(BigDecimal.valueOf(100));
+                        } else {
+                            // Ni prix ni pourcentage, utiliser le prix de base
+                            prixUnitaire = prixBase;
+                        }
+                    } else {
+                        // Pas de configuration spéciale, utiliser le prix de base
+                        prixUnitaire = prixBase;
+                    }
+                } else {
+                    // Pas de catégorie client, utiliser directement le prix de base
+                    prixUnitaire = prixBase;
+                }
+
                 BigDecimal prixTotal = prixUnitaire.multiply(BigDecimal.valueOf(nbPlaces));
 
                 AchatDetailDto achatDetail = new AchatDetailDto();
@@ -126,6 +194,10 @@ public class VolService {
                 achatDetail.setPrixUnitaire(prixUnitaire);
                 achatDetail.setPrixTotal(prixTotal);
                 achatDetail.setClasseLibelle(classeLibelle);
+                if (categorieLibelle == null) {
+                    categorieLibelle = "Adulte";
+                }
+                achatDetail.setCategorieLibelle(categorieLibelle);
 
                 dto.addAchat(achatDetail);
 
@@ -146,9 +218,9 @@ public class VolService {
      * Retourne les vols disponibles avec le nombre de places restantes.
      * Filtre les vols qui n'ont pas assez de places par rapport à nombrePlaceEntre.
      *
-     * @param idAeroportDepart  ID de l'aéroport de départ
-     * @param idAeroportArrive  ID de l'aéroport d'arrivée
-     * @param nombrePlaceEntre  Nombre de places demandées par le client
+     * @param idAeroportDepart ID de l'aéroport de départ
+     * @param idAeroportArrive ID de l'aéroport d'arrivée
+     * @param nombrePlaceEntre Nombre de places demandées par le client
      * @return Map<Vol, Integer> où Integer représente les places disponibles
      */
     public Map<Vol, Integer> getVolDisponible(int idAeroportDepart, int idAeroportArrive, int nombrePlaceEntre) {
@@ -173,7 +245,7 @@ public class VolService {
             // Ajouter le vol seulement s'il a assez de places
             if (placesDisponibles >= nombrePlaceEntre) {
                 volsDisponibles.put(vol, placesDisponibles);
-            }   
+            }
         }
 
         return volsDisponibles;
@@ -183,7 +255,8 @@ public class VolService {
      * Retourne la disponibilité par classe pour les vols d'un trajet.
      * Filtre les vols si la classe choisie n'existe pas ou n'a pas assez de places.
      */
-    public List<VolDisponibiliteDto> getVolDisponibleParClasse(int idAeroportDepart, int idAeroportArrive, int nombrePlaceEntre, Integer idClassePlaceChoisie) {
+    public List<VolDisponibiliteDto> getVolDisponibleParClasse(int idAeroportDepart, int idAeroportArrive,
+            int nombrePlaceEntre, Integer idClassePlaceChoisie) {
         List<VolDisponibiliteDto> result = new ArrayList<>();
         List<Vol> vols = repository.findByAeroports(idAeroportDepart, idAeroportArrive);
 
@@ -197,14 +270,17 @@ public class VolService {
 
             for (PrixVol pv : prixVols) {
                 // total réservé pour cette classe
-                Integer reserved = achatPlacesRepository.getTotalPlacesAcheteesByVolAndClasse(vol.getIdVol(), pv.getIdClassePlace());
-                if (reserved == null) reserved = 0;
+                Integer reserved = achatPlacesRepository.getTotalPlacesAcheteesByVolAndClasse(vol.getIdVol(),
+                        pv.getIdClassePlace());
+                if (reserved == null)
+                    reserved = 0;
                 int available = (pv.getNbrPlaces() != null ? pv.getNbrPlaces() : 0) - reserved;
 
                 // Libellé de la classe
                 String libelle = "";
                 Optional<ClassePlace> classeOpt = classePlaceRepository.findById(pv.getIdClassePlace());
-                if (classeOpt.isPresent()) libelle = classeOpt.get().getLibelle();
+                if (classeOpt.isPresent())
+                    libelle = classeOpt.get().getLibelle();
 
                 classes.add(new ClasseDisponibiliteDto(pv.getIdClassePlace(), libelle, available));
 
@@ -233,13 +309,16 @@ public class VolService {
         final int DEFAULT_CAPACITY = 150;
 
         Optional<Vol> volOpt = repository.findById(idVol);
-        if (!volOpt.isPresent()) return DEFAULT_CAPACITY;
+        if (!volOpt.isPresent())
+            return DEFAULT_CAPACITY;
         Vol vol = volOpt.get();
         Integer idAvion = vol.getIdAvion();
-        if (idAvion == null) return DEFAULT_CAPACITY;
+        if (idAvion == null)
+            return DEFAULT_CAPACITY;
 
         Optional<Avion> avionOpt = avionRepository.findById(idAvion);
-        if (!avionOpt.isPresent()) return DEFAULT_CAPACITY;
+        if (!avionOpt.isPresent())
+            return DEFAULT_CAPACITY;
 
         Integer capacite = avionOpt.get().getCapacite();
         return capacite != null ? capacite : DEFAULT_CAPACITY;
