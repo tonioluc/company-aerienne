@@ -7,6 +7,7 @@ import itu.company.aerienne.service.AchatPlacesService;
 import itu.company.aerienne.service.AeroportService;
 import itu.company.aerienne.service.VolService;
 import itu.company.aerienne.repository.ClassPlaceRepository;
+import itu.company.aerienne.repository.CategorieClientRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -32,20 +33,23 @@ public class AchatPlacesController {
 
     @Autowired
     private ClassPlaceRepository classPlaceRepository;
+    @Autowired
+    private CategorieClientRepository categorieClientRepository;
 
     @GetMapping
     public String showForm(Model model) {
         model.addAttribute("aeroports", aeroportService.findAll());
         model.addAttribute("classes", classPlaceRepository.findAll());
+        model.addAttribute("categories", categorieClientRepository.findAll());
         model.addAttribute("achat", new AchatPlacesFormDto());
         return "achats/achat-places";
     }
 
     @PostMapping
     public String showAvailableVol(@ModelAttribute("achat") AchatPlacesFormDto donneesEnvoye,
-                                   Model model,
-                                   HttpSession session,
-                                   RedirectAttributes redirectAttributes) {
+            Model model,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
         try {
             // Vérifier que les aéroports sont différents
             donneesEnvoye.estAeroportDepartArriveDifferent();
@@ -54,26 +58,34 @@ public class AchatPlacesController {
             session.setAttribute("achatForm", donneesEnvoye);
 
             // Récupérer les vols disponibles
-                Map<Vol, Integer> volsDisponibles = volService.getVolDisponible(
+            Map<Vol, Integer> volsDisponibles = volService.getVolDisponible(
                     donneesEnvoye.getAeroportDepartId(),
                     donneesEnvoye.getAeroportArriveId(),
-                    donneesEnvoye.getPlaces()
-                );
+                    donneesEnvoye.getPlaces());
 
-                // Disponibilité par classe
-                var volsDisponiblesParClasse = volService.getVolDisponibleParClasse(
+            // Disponibilité par classe
+            var volsDisponiblesParClasse = volService.getVolDisponibleParClasse(
                     donneesEnvoye.getAeroportDepartId(),
                     donneesEnvoye.getAeroportArriveId(),
                     donneesEnvoye.getPlaces(),
-                    donneesEnvoye.getIdClassePlace()
-                );
+                    donneesEnvoye.getIdClassePlace());
 
-                // Libellé de la classe choisie
-                String classeChoisieLibelle = null;
-                if (donneesEnvoye.getIdClassePlace() != null) {
+            // Libellé de la classe choisie
+            String classeChoisieLibelle = null;
+            if (donneesEnvoye.getIdClassePlace() != null) {
                 var opt = classPlaceRepository.findById(donneesEnvoye.getIdClassePlace());
-                if (opt.isPresent()) classeChoisieLibelle = opt.get().getLibelle();
+                if (opt.isPresent())
+                    classeChoisieLibelle = opt.get().getLibelle();
+            }
+
+            // Libellé de la catégorie choisie
+            String categorieChoisieLibelle = null;
+            if (donneesEnvoye.getIdCategorieClient() != null) {
+                var optCat = categorieClientRepository.findById(donneesEnvoye.getIdCategorieClient());
+                if (optCat.isPresent()) {
+                    categorieChoisieLibelle = optCat.get().getLibelle();
                 }
+            }
 
             // Passer les données à la vue
             model.addAttribute("volsDisponibles", volsDisponibles);
@@ -81,6 +93,7 @@ public class AchatPlacesController {
             model.addAttribute("clientNom", donneesEnvoye.getClientNomComplet());
             model.addAttribute("placeDemandee", donneesEnvoye.getPlaces());
             model.addAttribute("classeChoisie", classeChoisieLibelle);
+            model.addAttribute("categorieChoisie", categorieChoisieLibelle);
 
             return "achats/liste-vol-dispo";
 
@@ -88,6 +101,7 @@ public class AchatPlacesController {
             // Erreur de validation: retourner au formulaire avec message
             model.addAttribute("aeroports", aeroportService.findAll());
             model.addAttribute("classes", classPlaceRepository.findAll());
+            model.addAttribute("categories", categorieClientRepository.findAll());
             model.addAttribute("achat", donneesEnvoye);
             model.addAttribute("error", e.getMessage());
             return "achats/achat-places";
@@ -96,9 +110,9 @@ public class AchatPlacesController {
 
     @GetMapping("/prendre/{idVol}")
     public String prendrePlace(@PathVariable("idVol") Integer idVol,
-                               HttpSession session,
-                               Model model,
-                               RedirectAttributes redirectAttributes) {
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes) {
         // Récupérer les données du formulaire depuis la session
         AchatPlacesFormDto achatForm = (AchatPlacesFormDto) session.getAttribute("achatForm");
 
@@ -113,6 +127,7 @@ public class AchatPlacesController {
         achat.setNombrePlace(String.valueOf(achatForm.getPlaces()));
         achat.setIdVol(idVol);
         achat.setIdClassePlace(achatForm.getIdClassePlace());
+        achat.setIdCategorieClient(achatForm.getIdCategorieClient());
 
         achatPlacesService.save(achat);
 
@@ -120,9 +135,10 @@ public class AchatPlacesController {
         session.removeAttribute("achatForm");
 
         // Rediriger avec message de succès
-        redirectAttributes.addFlashAttribute("success", 
-            "Achat confirmé ! " + achatForm.getPlaces() + " place(s) réservée(s) pour " + achatForm.getClientNomComplet());
-        
+        redirectAttributes.addFlashAttribute("success",
+                "Achat confirmé ! " + achatForm.getPlaces() + " place(s) réservée(s) pour "
+                        + achatForm.getClientNomComplet());
+
         return "redirect:/";
     }
 
