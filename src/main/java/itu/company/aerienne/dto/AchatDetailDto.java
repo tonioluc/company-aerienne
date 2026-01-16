@@ -10,6 +10,7 @@ public class AchatDetailDto {
     private BigDecimal prixUnitaire;
     private BigDecimal prixTotal;
     private String classeLibelle;
+    private String categorieLibelle;
 
     public AchatDetailDto() {
     }
@@ -68,5 +69,12 @@ public class AchatDetailDto {
 
     public void setClasseLibelle(String classeLibelle) {
         this.classeLibelle = classeLibelle;
+    }
+
+    public String getCategorieLibelle() {
+        return categorieLibelle;
+    }
+    public void setCategorieLibelle(String categorieLibelle) {
+        this.categorieLibelle = categorieLibelle;
     }
 }

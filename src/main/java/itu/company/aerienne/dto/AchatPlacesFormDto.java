@@ -6,6 +6,7 @@ public class AchatPlacesFormDto {
     private Integer aeroportArriveId;
     private Integer places;
     private Integer idClassePlace;
+    private Integer idCategorieClient;
 
     public String getClientNomComplet() {
         return clientNomComplet;
@@ -47,6 +48,14 @@ public class AchatPlacesFormDto {
         this.idClassePlace = idClassePlace;
     }
 
+    public Integer getIdCategorieClient() {
+        return idCategorieClient;
+    }
+
+    public void setIdCategorieClient(Integer idCategorieClient) {
+        this.idCategorieClient = idCategorieClient;
+    }
+    
     /**
      * Vérifie que l'aéroport de départ et d'arrivée sont différents.
      * @throws IllegalArgumentException si les deux aéroports sont identiques

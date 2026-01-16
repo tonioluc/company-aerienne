@@ -9,6 +9,8 @@ public class VolChiffreAffaireDto {
     private Integer idVol;
     private String dateHeureDepart;
     private String dateHeureArrive;
+    private String avionModele;
+    private Integer avionCapacite;
     private Integer totalPlacesVendues;
     private BigDecimal chiffreAffaires;
     private List<AchatDetailDto> achats;
@@ -41,6 +43,22 @@ public class VolChiffreAffaireDto {
 
     public void setDateHeureArrive(String dateHeureArrive) {
         this.dateHeureArrive = dateHeureArrive;
+    }
+
+    public String getAvionModele() {
+        return avionModele;
+    }
+
+    public void setAvionModele(String avionModele) {
+        this.avionModele = avionModele;
+    }
+
+    public Integer getAvionCapacite() {
+        return avionCapacite;
+    }
+
+    public void setAvionCapacite(Integer avionCapacite) {
+        this.avionCapacite = avionCapacite;
     }
 
     public Integer getTotalPlacesVendues() {
