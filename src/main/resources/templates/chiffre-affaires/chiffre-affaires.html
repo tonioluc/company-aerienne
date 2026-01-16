@@ -87,7 +87,7 @@
                         <div class="col-md-4">
                             <h5>Chiffre d'Affaires Total</h5>
                             <h3>
-                                <span th:text="${#numbers.formatDecimal(totalCAGlobal, 1, 'COMMA', 2, 'POINT')}"></span> Ar
+                                <span th:text="${#strings.replace(#numbers.formatDecimal(totalCAGlobal, 1, 'POINT', 0, 'COMMA'), '.', ' ')}"></span> Ar
                             </h3>
                         </div>
                     </div>
@@ -103,6 +103,8 @@
                                 <i class="fa fa-plane"></i> Vol #<span th:text="${vol.idVol}"></span>
                             </h5>
                             <small>
+                                Avion: <span th:text="${vol.avionModele}"></span>
+                                <span th:if="${vol.avionCapacite != null}"> (Capacité: <span th:text="${vol.avionCapacite}"></span>)</span> |
                                 Départ: <span th:text="${vol.dateHeureDepart}"></span> | 
                                 Arrivée: <span th:text="${vol.dateHeureArrive}"></span>
                             </small>
@@ -122,6 +124,7 @@
                             <tr>
                                 <th>ID Achat</th>
                                 <th>Nom Client</th>
+                                <th>Catégorie</th>
                                 <th>Classe</th>
                                 <th class="text-center">Nb Places</th>
                                 <th class="text-end">Prix Unitaire</th>
@@ -132,24 +135,26 @@
                             <tr th:each="achat : ${vol.achats}">
                                 <td th:text="${achat.idAchat}"></td>
                                 <td th:text="${achat.nomClient}"></td>
+                                <td th:text="${achat.categorieLibelle}">Adulte</td>
                                 <td th:text="${achat.classeLibelle}"></td>
                                 <td class="text-center" th:text="${achat.nombrePlaces}"></td>
                                 <td class="text-end">
-                                    <span th:text="${#numbers.formatDecimal(achat.prixUnitaire, 1, 'COMMA', 2, 'POINT')}"></span> Ar
+                                    <span th:text="${#strings.replace(#numbers.formatDecimal(achat.prixUnitaire, 1, 'POINT', 0, 'COMMA'), '.', ' ')}"></span> Ar
                                 </td>
                                 <td class="text-end">
-                                    <span th:text="${#numbers.formatDecimal(achat.prixTotal, 1, 'COMMA', 2, 'POINT')}"></span> Ar
+                                    <span th:text="${#strings.replace(#numbers.formatDecimal(achat.prixTotal, 1, 'POINT', 0, 'COMMA'), '.', ' ')}"></span> Ar
                                 </td>
                             </tr>
                             </tbody>
                             <tfoot>
                             <tr class="total-row">
                                 <td colspan="3"><strong>Total Vol #<span th:text="${vol.idVol}"></span></strong></td>
+                                <td class="text-end"></td>
                                 <td class="text-center"><strong th:text="${vol.totalPlacesVendues}"></strong></td>
-                                <td class="text-end">-</td>
+                                <td class="text-end"></td>
                                 <td class="text-end">
                                     <strong>
-                                        <span th:text="${#numbers.formatDecimal(vol.chiffreAffaires, 1, 'COMMA', 2, 'POINT')}"></span> Ar
+                                        <span th:text="${#strings.replace(#numbers.formatDecimal(vol.chiffreAffaires, 1, 'POINT', 0, 'COMMA'), '.', ' ')}"></span> Ar
                                     </strong>
                                 </td>
                             </tr>

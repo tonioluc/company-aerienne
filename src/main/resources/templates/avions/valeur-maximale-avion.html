@@ -90,15 +90,15 @@
                 <tbody>
                   <tr th:each="classe : ${vol.classesPrix}">
                     <td th:text="${classe.libelle}">Business</td>
-                    <td th:text="${#numbers.formatDecimal(classe.prixUnitaire, 0, 'COMMA', 0, 'POINT')} + ' Ar'">500 Ar</td>
+                    <td th:text="${#strings.replace(#numbers.formatDecimal(classe.prixUnitaire, 1, 'POINT', 0, 'COMMA'), '.', ' ')} + ' Ar'">500 Ar</td>
                     <td th:text="${classe.nbrPlaces}">20</td>
-                    <td class="text-end" th:text="${#numbers.formatDecimal(classe.valeurMaxParClasse, 0, 'COMMA', 0, 'POINT')} + ' Ar'">10 000 Ar</td>
+                    <td class="text-end" th:text="${#strings.replace(#numbers.formatDecimal(classe.valeurMaxParClasse, 1, 'POINT', 0, 'COMMA'), '.', ' ')} + ' Ar'">10 000 Ar</td>
                   </tr>
                 </tbody>
                 <tfoot class="table-secondary">
                   <tr>
                     <td colspan="3" class="fw-bold">Total</td>
-                    <td class="text-end fw-bold text-success" th:text="${#numbers.formatDecimal(vol.valeurMax, 0, 'COMMA', 0, 'POINT')} + ' Ar'">26 500 Ar</td>
+                    <td class="text-end fw-bold text-success" th:text="${#strings.replace(#numbers.formatDecimal(vol.valeurMax, 1, 'POINT', 0, 'COMMA'), '.', ' ')} + ' Ar'">26 500 Ar</td>
                   </tr>
                 </tfoot>
               </table>
@@ -127,13 +127,13 @@
                   <td>
                     <span th:text="${vol.depart}">Paris</span> → <span th:text="${vol.arrive}">New York</span>
                   </td>
-                  <td class="text-end" th:text="${#numbers.formatDecimal(vol.valeurMax, 0, 'COMMA', 0, 'POINT')} + ' Ar'">26 500 Ar</td>
+                  <td class="text-end" th:text="${#strings.replace(#numbers.formatDecimal(vol.valeurMax, 1, 'POINT', 0, 'COMMA'), '.', ' ')} + ' Ar'">26 500 Ar</td>
                 </tr>
               </tbody>
               <tfoot class="table-primary">
                 <tr>
                   <td colspan="2" class="fw-bold">Total Général</td>
-                  <td class="text-end fw-bold fs-5" th:text="${#numbers.formatDecimal(valeurMax.valeurMaxTotale, 0, 'COMMA', 0, 'POINT')} + ' Ar'">43 360 Ar</td>
+                  <td class="text-end fw-bold fs-5" th:text="${#strings.replace(#numbers.formatDecimal(valeurMax.valeurMaxTotale, 1, 'POINT', 0, 'COMMA'), '.', ' ')} + ' Ar'">43 360 Ar</td>
                 </tr>
               </tfoot>
             </table>
