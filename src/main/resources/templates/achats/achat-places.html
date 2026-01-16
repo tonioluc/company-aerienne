@@ -75,6 +75,19 @@
 			</div>
 		</div>
 
+		<!-- Categorie de client -->
+		<div class="row mb-3">
+			<label for="categorieclient" class="col-sm-4 col-form-label">Categorie client</label>
+			<div class="col-sm-8">
+				<select id="categorieclient" th:field="*{idCategorieClient}" class="form-select">
+					<option value="" selected>Choisir une categorie</option>
+					<option th:each="c : ${categories}"
+						th:value="${c.idCategorieClient}"
+						th:text="${c.libelle}"></option>
+				</select>
+			</div>
+		</div>
+
 		<div class="row">
 			<div class="offset-sm-4 col-sm-8">
 				<button type="submit" class="btn btn-primary">Valider l'achat</button>
