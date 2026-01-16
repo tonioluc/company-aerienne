@@ -14,6 +14,9 @@ public class AchatPlaces {
     @Column(name = "Id_classe_place")
     private Integer idClassePlace;
 
+    @Column(name = "Id_categorie_client", nullable = true)
+    private Integer idCategorieClient;
+
     @Column(name = "nom_client", length = 50)
     private String nomClient;
 
@@ -26,9 +29,10 @@ public class AchatPlaces {
     public AchatPlaces() {
     }
 
-    public AchatPlaces(Integer idAchatPlaces, Integer idClassePlace, String nomClient, String nombrePlace, Integer idVol) {
+    public AchatPlaces(Integer idAchatPlaces, Integer idClassePlace, Integer idCategorieClient, String nomClient, String nombrePlace, Integer idVol) {
         this.idAchatPlaces = idAchatPlaces;
         this.idClassePlace = idClassePlace;
+        this.idCategorieClient = idCategorieClient;
         this.nomClient = nomClient;
         this.nombrePlace = nombrePlace;
         this.idVol = idVol;
@@ -42,6 +46,13 @@ public class AchatPlaces {
         this.idAchatPlaces = idAchatPlaces;
     }
 
+    public Integer getIdCategorieClient() {
+        return idCategorieClient;
+    }
+
+    public void setIdCategorieClient(Integer idCategorieClient) {
+        this.idCategorieClient = idCategorieClient;
+    }
     public String getNomClient() {
         return nomClient;
     }
