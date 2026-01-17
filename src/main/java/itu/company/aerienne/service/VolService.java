@@ -11,6 +11,10 @@ import itu.company.aerienne.model.PrixParCategorie;
 import itu.company.aerienne.model.PrixVol;
 import itu.company.aerienne.model.Vol;
 import itu.company.aerienne.model.Avion;
+import itu.company.aerienne.model.Trajet;
+import itu.company.aerienne.model.Aeroport;
+import itu.company.aerienne.repository.TrajetRepository;
+import itu.company.aerienne.repository.AeroportRepository;
 import itu.company.aerienne.repository.VolRepository;
 import itu.company.aerienne.repository.AvionRepository;
 import itu.company.aerienne.repository.AchatPlacesRepository;
@@ -57,9 +61,105 @@ public class VolService {
 
     @Autowired
     private CategorieClientRepository categorieClientRepository;
+    
+    @Autowired
+    private TrajetRepository trajetRepository;
+
+    @Autowired
+    private AeroportRepository aeroportRepository;
 
     public List<Vol> findAll() {
         return repository.findAll();
+    }
+
+    /**
+     * Retourne la liste des vols avec leurs détails : avion, classes et prix par catégorie.
+     */
+    public java.util.List<itu.company.aerienne.dto.VolDetailsDto> getAllVolDetails() {
+        java.util.List<itu.company.aerienne.dto.VolDetailsDto> result = new java.util.ArrayList<>();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        java.util.List<Vol> vols = repository.findAll();
+        for (Vol vol : vols) {
+            itu.company.aerienne.dto.VolDetailsDto dto = new itu.company.aerienne.dto.VolDetailsDto();
+            dto.setIdVol(vol.getIdVol());
+            dto.setDateHeureDepart(vol.getDateHeureDepart() != null ? vol.getDateHeureDepart().format(formatter) : "");
+            dto.setDateHeureArrive(vol.getDateHeureArrive() != null ? vol.getDateHeureArrive().format(formatter) : "");
+
+            // Trajet description
+            String trajetDesc = "";
+            if (vol.getIdTrajet() != null) {
+                Optional<Trajet> trajetOpt = trajetRepository.findById(vol.getIdTrajet());
+                if (trajetOpt.isPresent()) {
+                    Trajet t = trajetOpt.get();
+                    String dep = formatAeroport(t.getIdAeroportDepart());
+                    String arr = formatAeroport(t.getIdAeroportArrive());
+                    trajetDesc = dep + " -> " + arr;
+                }
+            }
+            dto.setTrajetDescription(trajetDesc);
+
+            // Avion
+            if (vol.getIdAvion() != null) {
+                Optional<Avion> aOpt = avionRepository.findById(vol.getIdAvion());
+                if (aOpt.isPresent()) {
+                    dto.setAvionModele(aOpt.get().getModele());
+                    dto.setAvionCapacite(aOpt.get().getCapacite());
+                }
+            }
+
+            // Classes/prix
+            java.util.List<PrixVol> prixVols = prixVolRepository.findByIdVol(vol.getIdVol());
+            for (PrixVol pv : prixVols) {
+                itu.company.aerienne.dto.ClassePrixDto cp = new itu.company.aerienne.dto.ClassePrixDto();
+                cp.setIdClassePlace(pv.getIdClassePlace());
+                if (pv.getPrix() != null) {
+                    cp.setPrixUnitaire(java.math.BigDecimal.valueOf(pv.getPrix()));
+                } else {
+                    cp.setPrixUnitaire(java.math.BigDecimal.ZERO);
+                }
+                cp.setNbrPlaces(pv.getNbrPlaces());
+
+                // libelle classe
+                Optional<ClassePlace> classeOpt = classePlaceRepository.findById(pv.getIdClassePlace());
+                classeOpt.ifPresent(c -> cp.setLibelle(c.getLibelle()));
+
+                // pour chaque catégorie, vérifier s'il y a un prix spécial
+                java.util.List<CategorieClient> categories = categorieClientRepository.findAll();
+                for (CategorieClient cat : categories) {
+                    itu.company.aerienne.dto.CategoriePrixDto catDto = new itu.company.aerienne.dto.CategoriePrixDto();
+                    catDto.setIdCategorie(cat.getIdCategorieClient());
+                    catDto.setLibelle(cat.getLibelle());
+
+                    Optional<PrixParCategorie> ppcOpt = prixParCategorieRepository.findByIdCategoriePersonneAndIdClassePlace(
+                            cat.getIdCategorieClient(), pv.getIdClassePlace());
+                    if (ppcOpt.isPresent()) {
+                        PrixParCategorie ppc = ppcOpt.get();
+                        catDto.setPrix(ppc.getPrix());
+                        catDto.setPourcentage(ppc.getPourcentage());
+                    }
+
+                    cp.addCategoriePrix(catDto);
+                }
+
+                dto.addClasse(cp);
+            }
+
+            result.add(dto);
+        }
+
+        return result;
+    }
+
+    private String formatAeroport(Integer idAeroport) {
+        if (idAeroport == null) return "";
+        Optional<Aeroport> opt = aeroportRepository.findById(idAeroport);
+        if (!opt.isPresent()) return "";
+        Aeroport a = opt.get();
+        String code = a.getCodeIATA() != null ? a.getCodeIATA() : "";
+        String ville = a.getVille() != null ? a.getVille() : "";
+        if (!code.isEmpty() && !ville.isEmpty()) return code + " - " + ville;
+        return !code.isEmpty() ? code : ville;
     }
 
     public Optional<Vol> findById(Integer id) {

@@ -1,6 +1,8 @@
 package itu.company.aerienne.dto;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClassePrixDto {
     private Integer idClassePlace;
@@ -8,6 +10,7 @@ public class ClassePrixDto {
     private BigDecimal prixUnitaire;
     private BigDecimal valeurMaxParClasse;
     private Integer nbrPlaces;
+    private List<CategoriePrixDto> categoriePrix = new ArrayList<>();
 
     public ClassePrixDto() {
     }
@@ -17,7 +20,9 @@ public class ClassePrixDto {
         this.libelle = libelle;
         this.prixUnitaire = prixUnitaire;
         this.nbrPlaces = nbrPlaces;
-        this.valeurMaxParClasse = prixUnitaire.multiply(BigDecimal.valueOf(nbrPlaces));
+        this.valeurMaxParClasse = prixUnitaire != null && nbrPlaces != null
+                ? prixUnitaire.multiply(BigDecimal.valueOf(nbrPlaces))
+                : BigDecimal.ZERO;
     }
 
     public Integer getIdClassePlace() {
@@ -58,5 +63,13 @@ public class ClassePrixDto {
 
     public void setNbrPlaces(Integer nbrPlaces) {
         this.nbrPlaces = nbrPlaces;
+    }
+
+    public List<CategoriePrixDto> getCategoriePrix() {
+        return categoriePrix;
+    }
+
+    public void addCategoriePrix(CategoriePrixDto cp) {
+        this.categoriePrix.add(cp);
     }
 }

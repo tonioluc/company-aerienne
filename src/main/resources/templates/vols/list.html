@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Vols</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        /* Card and header */
+        .vol-card {
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .vol-header {
+            background: linear-gradient(90deg, #007bff, #0bb5d1);
+            color: #ffffff;
+            padding: 1rem;
+        }
+
+        .vol-header h5 {
+            color: #ffffff;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .vol-header .small-muted {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Table */
+        .classe-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .classe-table th {
+            background-color: #007bff;
+            color: #ffffff;
+            text-align: center;
+            font-weight: bold;
+            padding: 0.75rem;
+        }
+
+        .classe-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .classe-table tbody tr:hover {
+            background-color: #e9ecef;
+        }
+
+        .classe-table td {
+            padding: 0.75rem;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .price {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        /* Compact card body */
+        .card-body {
+            padding: 1rem;
+        }
+
+        .card {
+            border-radius: 0.5rem;
+        }
+
+        /* Button */
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
+        /* General */
+        body {
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+
+        h1 {
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        p.text-muted {
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+<div th:insert="~{sidebar}"></div>
+<div class="container mt-4">
+    <div class="mb-4">
+        <h1><i class="fa fa-plane"></i> Liste des Vols</h1>
+        <p class="text-muted">Détails des vols : avion, classes disponibles et tarifs par catégorie</p>
+    </div>
+
+    <div th:if="${#lists.isEmpty(vols)}" class="alert alert-info">Aucun vol trouvé.</div>
+
+    <div th:unless="${#lists.isEmpty(vols)}">
+        <div th:each="vol : ${vols}" class="card vol-card shadow-sm">
+            <div class="vol-header">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5 class="mb-0"><i class="fa fa-plane"></i> <span th:text="${vol.trajetDescription}"></span></h5>
+                        <small class="small-muted">Avion: <strong th:text="${vol.avionModele}"></strong>
+                            <span th:if="${vol.avionCapacite != null}"> (Capacité: <span th:text="${vol.avionCapacite}"></span>)</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong><i class="fa fa-arrow-circle-up text-success"></i> Départ :</strong>
+                            <span th:text="${vol.dateHeureDepart}"></span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong><i class="fa fa-arrow-circle-down text-danger"></i> Arrivée :</strong>
+                            <span th:text="${vol.dateHeureArrive}"></span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped classe-table mb-0">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>Classe</th>
+                            <th class="text-center">Nb Places</th>
+                            <th class="text-end">Prix unitaire</th>
+                            <th>Prix par catégorie</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="cl : ${vol.classes}">
+                            <td th:text="${cl.libelle}"></td>
+                            <td class="text-center" th:text="${cl.nbrPlaces}"></td>
+                            <td class="text-end price" th:text="${#strings.replace(#numbers.formatDecimal(cl.prixUnitaire,1,'POINT',0,'COMMA'), '.', ' ')} + ' Ar'"></td>
+                            <td>
+                                <ul class="mb-0">
+                                    <li th:each="cat : ${cl.categoriePrix}">
+                                        <strong th:text="${cat.libelle}"></strong>
+                                        <span th:if="${cat.prix != null}">: <span class="price" th:text="${#strings.replace(#numbers.formatDecimal(cat.prix,1,'POINT',0,'COMMA'), '.', ' ')} + ' Ar'"></span></span>
+                                        <span th:if="${cat.prix == null and cat.pourcentage != null}">: <span th:text="${cat.pourcentage}"></span>% du prix</span>
+                                        <span th:if="${cat.prix == null and cat.pourcentage == null}">: -</span>
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a class="btn btn-secondary" th:href="@{/}"><i class="fa fa-arrow-left"></i> Retour</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
