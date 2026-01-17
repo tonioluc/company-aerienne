@@ -30,8 +30,9 @@
                 <th>ID</th>
                 <th>Nom Client</th>
                 <th>Classe</th>
+                <th>Catégorie</th>
                 <th>Nombre de Places</th>
-                <th>ID Vol</th>
+                <th>Vol</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -39,9 +40,10 @@
             <tr th:each="achat : ${achats}">
                 <td th:text="${achat.idAchatPlaces}"></td>
                 <td th:text="${achat.nomClient}"></td>
-                <td th:text="${achat.idClassePlace}"></td>
+                <td th:text="${achat.classeLibelle}"></td>
+                <td th:text="${achat.categorieLibelle}"></td>
                 <td th:text="${achat.nombrePlace}"></td>
-                <td th:text="${achat.idVol}"></td>
+                <td th:text="${achat.volDescription}"></td>
                 <td>
                     <div class="btn-group" role="group" aria-label="Actions">
                         <form th:action="@{'/achats/liste/' + ${achat.idAchatPlaces} + '/delete'}" method="post" style="display:inline;">

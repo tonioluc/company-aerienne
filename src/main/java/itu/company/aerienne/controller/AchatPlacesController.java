@@ -144,7 +144,7 @@ public class AchatPlacesController {
 
     @GetMapping("/liste")
     public String listeAchats(Model model) {
-        model.addAttribute("achats", achatPlacesService.findAll());
+        model.addAttribute("achats", achatPlacesService.findAllDto());
         return "achats/liste-achats";
     }
 
