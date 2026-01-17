@@ -1,11 +1,20 @@
+<!-- Bouton Toggle pour Mobile -->
+<button class="navbar-toggler bg-dark text-white" type="button" id="sidebarToggle">
+    <i class="fa fa-bars"></i>
+</button>
+
+<!-- Overlay pour fermer le menu en cliquant à l'extérieur -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <!-- Sidebar Navigation -->
-<nav class="sidebar bg-dark text-white p-3" style="min-height: 100vh; position: fixed; width: 250px; left: 0; top: 0;">
-    <div class="mb-4">
-        <h3 class="text-center">
+<nav class="sidebar bg-dark text-white p-3" id="sidebar">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">
             <i class="fa fa-plane"></i> Navigation
         </h3>
-        <hr class="bg-light">
+        <button class="btn-close btn-close-white d-md-none" id="sidebarClose"></button>
     </div>
+    <hr class="bg-light">
     
     <ul class="nav flex-column">
         <li class="nav-item mb-2">
@@ -52,14 +61,50 @@
     </div>
 </nav>
 
-<!-- Styles pour la sidebar -->
+<!-- Styles pour la sidebar responsive -->
 <style>
     body {
         margin-left: 250px;
+        transition: margin-left 0.3s ease;
+    }
+    
+    .navbar-toggler {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1050;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        display: none;
+        cursor: pointer;
+    }
+    
+    .navbar-toggler:hover {
+        background-color: #495057 !important;
     }
     
     .sidebar {
+        min-height: 100vh;
+        position: fixed;
+        width: 250px;
+        left: 0;
+        top: 0;
         box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+        z-index: 1040;
+        overflow-y: auto;
+    }
+    
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1030;
     }
     
     .sidebar .nav-link {
@@ -79,15 +124,71 @@
         border-left-color: #0d6efd;
     }
     
+    /* Responsive styles */
     @media (max-width: 768px) {
         body {
-            margin-left: 0;
+            margin-left: 0 !important;
+        }
+        
+        .navbar-toggler {
+            display: block;
         }
         
         .sidebar {
-            width: 100%;
-            position: relative;
-            min-height: auto;
+            transform: translateX(-100%);
+        }
+        
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
         }
     }
 </style>
+
+<!-- Script pour gérer le menu mobile -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarClose = document.getElementById('sidebarClose');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        
+        // Ouvrir le sidebar
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.add('active');
+                sidebarOverlay.classList.add('active');
+            });
+        }
+        
+        // Fermer le sidebar avec le bouton X
+        if (sidebarClose) {
+            sidebarClose.addEventListener('click', function() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+            });
+        }
+        
+        // Fermer le sidebar en cliquant sur l'overlay
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+            });
+        }
+        
+        // Fermer le sidebar lors du clic sur un lien (mobile uniquement)
+        const navLinks = sidebar.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                }
+            });
+        });
+    });
+</script>
