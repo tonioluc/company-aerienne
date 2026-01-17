@@ -128,7 +128,7 @@ public class VolService {
 
                 BigDecimal prixUnitaire = BigDecimal.ZERO;
                 String classeLibelle = "";
-                String categorieLibelle = null;
+                String categorieLibelle = "Adulte";
                 Integer idClassePlace = achat.getIdClassePlace();
                 Integer idCategorieClient = achat.getIdCategorieClient();
 
@@ -194,9 +194,6 @@ public class VolService {
                 achatDetail.setPrixUnitaire(prixUnitaire);
                 achatDetail.setPrixTotal(prixTotal);
                 achatDetail.setClasseLibelle(classeLibelle);
-                if (categorieLibelle == null) {
-                    categorieLibelle = "Adulte";
-                }
                 achatDetail.setCategorieLibelle(categorieLibelle);
 
                 dto.addAchat(achatDetail);
