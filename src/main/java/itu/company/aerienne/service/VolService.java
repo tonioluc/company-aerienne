@@ -124,20 +124,31 @@ public class VolService {
                 Optional<ClassePlace> classeOpt = classePlaceRepository.findById(pv.getIdClassePlace());
                 classeOpt.ifPresent(c -> cp.setLibelle(c.getLibelle()));
 
-                // pour chaque catégorie, vérifier s'il y a un prix spécial
+                // Récupérer tous les prix par catégorie pour ce vol et cette classe
+                java.util.List<PrixParCategorie> prixParCategories = prixParCategorieRepository.findByIdVol(vol.getIdVol());
+                
+                // Créer un map pour accéder rapidement aux prix par catégorie
+                java.util.Map<Integer, PrixParCategorie> prixParCategorieMap = new java.util.HashMap<>();
+                for (PrixParCategorie ppc : prixParCategories) {
+                    if (ppc.getIdClassePlace().equals(pv.getIdClassePlace())) {
+                        prixParCategorieMap.put(ppc.getIdCategoriePersonne(), ppc);
+                    }
+                }
+                
+                // Pour chaque catégorie, vérifier s'il y a un prix spécial pour ce vol
                 java.util.List<CategorieClient> categories = categorieClientRepository.findAll();
                 for (CategorieClient cat : categories) {
                     itu.company.aerienne.dto.CategoriePrixDto catDto = new itu.company.aerienne.dto.CategoriePrixDto();
                     catDto.setIdCategorie(cat.getIdCategorieClient());
                     catDto.setLibelle(cat.getLibelle());
 
-                    Optional<PrixParCategorie> ppcOpt = prixParCategorieRepository.findByIdCategoriePersonneAndIdClassePlace(
-                            cat.getIdCategorieClient(), pv.getIdClassePlace());
-                    if (ppcOpt.isPresent()) {
-                        PrixParCategorie ppc = ppcOpt.get();
+                    // Chercher si ce vol a un prix défini pour cette catégorie et classe
+                    if (prixParCategorieMap.containsKey(cat.getIdCategorieClient())) {
+                        PrixParCategorie ppc = prixParCategorieMap.get(cat.getIdCategorieClient());
                         catDto.setPrix(ppc.getPrix());
                         catDto.setPourcentage(ppc.getPourcentage());
                     }
+                    // Sinon, catDto reste avec prix et pourcentage null
 
                     cp.addCategoriePrix(catDto);
                 }
@@ -257,9 +268,9 @@ public class VolService {
                 }
 
                 if (idCategorieClient != null && idClassePlace != null) {
-                    // Chercher un prix ou pourcentage pour cette catégorie et classe
+                    // Chercher un prix ou pourcentage pour cette catégorie, classe ET vol
                     Optional<PrixParCategorie> prixSpecialOpt = prixParCategorieRepository
-                            .findByIdCategoriePersonneAndIdClassePlace(idCategorieClient, idClassePlace);
+                            .findByIdVolAndIdCategoriePersonneAndIdClassePlace(vol.getIdVol(), idCategorieClient, idClassePlace);
 
                     if (prixSpecialOpt.isPresent()) {
                         PrixParCategorie ppc = prixSpecialOpt.get();
@@ -277,7 +288,7 @@ public class VolService {
                             prixUnitaire = prixBase;
                         }
                     } else {
-                        // Pas de configuration spéciale, utiliser le prix de base
+                        // Pas de configuration spéciale pour ce vol, utiliser le prix de base
                         prixUnitaire = prixBase;
                     }
                 } else {

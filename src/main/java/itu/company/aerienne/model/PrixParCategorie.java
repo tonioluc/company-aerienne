@@ -11,6 +11,9 @@ public class PrixParCategorie {
     @Column(name = "Id_prix_categorie")
     private Integer idPrixCategorie;
 
+    @Column(name = "Id_vol", nullable = false)
+    private Integer idVol;
+
     @Column(name = "Id_categorie_personne", nullable = false)
     private Integer idCategoriePersonne;
 
@@ -26,8 +29,9 @@ public class PrixParCategorie {
     public PrixParCategorie() {
     }
 
-    public PrixParCategorie(Integer idPrixCategorie, Integer idCategoriePersonne, Integer idClassePlace, Double prix, Double pourcentage) {
+    public PrixParCategorie(Integer idPrixCategorie, Integer idVol, Integer idCategoriePersonne, Integer idClassePlace, Double prix, Double pourcentage) {
         this.idPrixCategorie = idPrixCategorie;
+        this.idVol = idVol;
         this.idCategoriePersonne = idCategoriePersonne;
         this.idClassePlace = idClassePlace;
         this.prix = prix;
@@ -40,6 +44,14 @@ public class PrixParCategorie {
 
     public void setIdPrixCategorie(Integer idPrixCategorie) {
         this.idPrixCategorie = idPrixCategorie;
+    }
+
+    public Integer getIdVol() {
+        return idVol;
+    }
+
+    public void setIdVol(Integer idVol) {
+        this.idVol = idVol;
     }
 
     public Integer getIdCategoriePersonne() {

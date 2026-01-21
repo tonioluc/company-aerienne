@@ -139,12 +139,12 @@
 
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover table-striped classe-table mb-0">
-                        <thead class="table-dark">
+                        <thead>
                         <tr>
-                            <th>Classe</th>
-                            <th class="text-center">Nb Places</th>
-                            <th class="text-end">Prix unitaire</th>
-                            <th>Prix par catégorie</th>
+                            <th style="background: linear-gradient(90deg, #28a745, #1db954); color:#fff;">Classe</th>
+                            <th class="text-center" style="background: linear-gradient(90deg, #28a745, #1db954); color:#fff;">Nb Places</th>
+                            <th class="text-end" style="background: linear-gradient(90deg, #28a745, #1db954); color:#fff;">Prix unitaire</th>
+                            <th style="background: linear-gradient(90deg, #28a745, #1db954); color:#fff;">Prix par catégorie</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -153,12 +153,17 @@
                             <td class="text-center" th:text="${cl.nbrPlaces}"></td>
                             <td class="text-end price" th:text="${#strings.replace(#numbers.formatDecimal(cl.prixUnitaire,1,'POINT',0,'COMMA'), '.', ' ')} + ' Ar'"></td>
                             <td>
-                                <ul class="mb-0">
-                                    <li th:each="cat : ${cl.categoriePrix}">
+                                <!-- Vérifier s'il y a des prix par catégorie pour ce vol -->
+                                <div th:if="${#lists.isEmpty(cl.categoriePrix) or (#lists.size(cl.categoriePrix) > 0 and cl.categoriePrix[0].prix == null and cl.categoriePrix[0].pourcentage == null)}">
+                                    <span class="text-muted fst-italic">
+                                        <i class="fa fa-info-circle"></i> Aucun prix par catégorie défini pour ce vol
+                                    </span>
+                                </div>
+                                <ul class="mb-0" th:unless="${#lists.isEmpty(cl.categoriePrix) or (#lists.size(cl.categoriePrix) > 0 and cl.categoriePrix[0].prix == null and cl.categoriePrix[0].pourcentage == null)}">
+                                    <li th:each="cat : ${cl.categoriePrix}" th:if="${cat.prix != null or cat.pourcentage != null}">
                                         <strong th:text="${cat.libelle}"></strong>
                                         <span th:if="${cat.prix != null}">: <span class="price" th:text="${#strings.replace(#numbers.formatDecimal(cat.prix,1,'POINT',0,'COMMA'), '.', ' ')} + ' Ar'"></span></span>
                                         <span th:if="${cat.prix == null and cat.pourcentage != null}">: <span th:text="${cat.pourcentage}"></span>% du prix</span>
-                                        <span th:if="${cat.prix == null and cat.pourcentage == null}">: -</span>
                                     </li>
                                 </ul>
                             </td>

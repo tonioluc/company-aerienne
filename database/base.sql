@@ -76,11 +76,13 @@ CREATE TABLE prix_vol(
 
 CREATE TABLE prix_par_categorie(
    Id_prix_categorie SERIAL,
+   Id_vol INTEGER NOT NULL,
    Id_categorie_personne INTEGER NOT NULL,
    Id_classe_place INTEGER NOT NULL,
    prix NUMERIC(15,2) DEFAULT NULL,
    pourcentage NUMERIC(15,2) DEFAULT 0, -- Pourcentage de prix par rapport au prix_vol
    PRIMARY KEY(Id_prix_categorie),
+   FOREIGN KEY(Id_vol) REFERENCES vol(Id_vol),
    FOREIGN KEY(Id_categorie_personne) REFERENCES categorie_client(Id_categorie_client),
    FOREIGN KEY(Id_classe_place) REFERENCES classe_place(Id_classe_place)
 );
