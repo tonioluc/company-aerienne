@@ -31,5 +31,3 @@ Fichiers importants
 - `database/` : scripts SQL
 - `src/main/resources/application.properties` : configuration DB
 - `src/main/resources/templates/` : vues Thymeleaf
-
-Voilà, c'est prêt — dites-moi si vous voulez un script d'import automatique.
