@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chiffre d'Affaires relatif aux diffusions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+<div th:insert="~{sidebar}"></div>
+<div class="container mt-4">
+    <div class="mb-4">
+        <h1><i class="fa fa-bar-chart"></i> Chiffre d'Affaires relatif aux diffusions</h1>
+    </div>
+
+    <!-- Formulaire de recherche par date -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fa fa-search"></i> Rechercher par période</h5>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/chiffre-affaire-diffusion}" method="get" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label for="mois" class="form-label">Mois</label>
+                    <select name="mois" class="form-select" id="mois" required>
+                        <option value="1" th:selected="${moisRecherche == 1}">Janvier</option>
+                        <option value="2" th:selected="${moisRecherche == 2}">Février</option>
+                        <option value="3" th:selected="${moisRecherche == 3}">Mars</option>
+                        <option value="4" th:selected="${moisRecherche == 4}">Avril</option>
+                        <option value="5" th:selected="${moisRecherche == 5}">Mai</option>
+                        <option value="6" th:selected="${moisRecherche == 6}">Juin</option>
+                        <option value="7" th:selected="${moisRecherche == 7}">Juillet</option>
+                        <option value="8" th:selected="${moisRecherche == 8}">Août</option>
+                        <option value="9" th:selected="${moisRecherche == 9}">Septembre</option>
+                        <option value="10" th:selected="${moisRecherche == 10}">Octobre</option>
+                        <option value="11" th:selected="${moisRecherche == 11}">Novembre</option>
+                        <option value="12" th:selected="${moisRecherche == 12}">Décembre</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="annee" class="form-label">Année</label>
+                    <input type="number" id="annee" name="annee" class="form-control" 
+                           th:value="${anneeRecherche}" required />
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-info w-100">
+                        <i class="fa fa-search"></i> Rechercher
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Affichage du coût unitaire -->
+    <div class="alert alert-secondary" th:if="${coutUnitaire != null}">
+        <strong>Coût unitaire de diffusion :</strong> <span th:text="${#strings.replace(#numbers.formatDecimal(coutUnitaire, 1, 'POINT', 0, 'COMMA'), '.', ' ')}"></span> Ar
+    </div>
+
+    <!-- Tableau des résultats -->
+    <div class="card shadow-sm" th:if="${diffusions != null and !diffusions.isEmpty()}">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fa fa-table"></i> Détails des diffusions</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Vol</th>
+                            <th>Nom de la société</th>
+                            <th class="text-center">Nombre de diffusion</th>
+                            <th class="text-end">Total Coût (Ar)</th>
+                            <th class="text-end">Montant Payé (Ar)</th>
+                            <th class="text-end">Reste à Payer (Ar)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="diffusion : ${diffusions}">
+                            <td th:text="${diffusion.volDescription}"></td>
+                            <td th:text="${diffusion.nomSociete}"></td>
+                            <td class="text-center" th:text="${diffusion.nombreDiffusion}"></td>
+                            <td class="text-end" th:text="${#strings.replace(#numbers.formatDecimal(diffusion.totalCout, 1, 'POINT', 0, 'COMMA'), '.', ' ')}"></td>
+                            <td class="text-end text-success" th:text="${#strings.replace(#numbers.formatDecimal(diffusion.montantPaye, 1, 'POINT', 0, 'COMMA'), '.', ' ')}"></td>
+                            <td class="text-end" th:classappend="${diffusion.resteAPayer > 0} ? 'text-danger' : 'text-success'" th:text="${#strings.replace(#numbers.formatDecimal(diffusion.resteAPayer, 1, 'POINT', 0, 'COMMA'), '.', ' ')}"></td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="table-primary">
+                        <tr>
+                            <th colspan="2" class="text-end">TOTAL</th>
+                            <th class="text-center" th:text="${totalNombreDiffusion}"></th>
+                            <th class="text-end" th:text="${#strings.replace(#numbers.formatDecimal(totalChiffreAffaire, 1, 'POINT', 0, 'COMMA'), '.', ' ')}"></th>
+                            <th class="text-end text-success" th:text="${#strings.replace(#numbers.formatDecimal(totalMontantPaye, 1, 'POINT', 0, 'COMMA'), '.', ' ')}"></th>
+                            <th class="text-end" th:classappend="${totalResteAPayer > 0} ? 'text-danger' : 'text-success'" th:text="${#strings.replace(#numbers.formatDecimal(totalResteAPayer, 1, 'POINT', 0, 'COMMA'), '.', ' ')}"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-success text-white">
+            <h4 class="mb-0 text-center">
+                <i class="fa fa-money"></i> Chiffre d'Affaires Total : 
+                <strong th:text="${#strings.replace(#numbers.formatDecimal(totalChiffreAffaire, 1, 'POINT', 0, 'COMMA'), '.', ' ')}"></strong> Ar
+            </h4>
+        </div>
+    </div>
+
+    <!-- Message si aucun résultat -->
+    <div class="alert alert-warning" th:if="${diffusions == null or diffusions.isEmpty()}">
+        <i class="fa fa-exclamation-triangle"></i> Aucune diffusion trouvée pour cette période.
+    </div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
