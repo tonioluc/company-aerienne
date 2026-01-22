@@ -11,7 +11,7 @@ INSERT INTO trajet (Id_aeroport_depart, Id_aeroport_arrive) VALUES
 
 -- Vols (sans prix_place, selon base.sql)
 INSERT INTO vol (date_heure_depart, date_heure_arrive, Id_avion, Id_trajet) VALUES
-('2026-01-20 06:30:00', '2026-01-20 08:00:00', 1, 1); -- Vol 1: Embraer E175 sur trajet 5
+('2025-12-20 06:30:00', '2025-12-20 08:00:00', 1, 1); -- Vol 1: Embraer E175 sur trajet 5
 
 -- Classes de place
 INSERT INTO classe_place (libelle) VALUES
@@ -63,3 +63,11 @@ INSERT INTO achat_places (Id_classe_place, Id_categorie_client, nom_client, nomb
 	(1, 3, 'Jean', '4', 1),   -- Bébé (3), Economique, 4 places (10% du prix)
 	(1, 2, 'Jean', '10', 1),  -- Enfant (2), Economique, 10 places (prix fixe enfant)
 	(1, 1, 'Jean', '30', 1); -- Adulte (1), Economique, 30 places (prix de base)
+
+	-- Test data pour societe et cout_diffusion
+	INSERT INTO societe (nom) VALUES
+	('Vaniala'),
+	('Lewis');
+
+	INSERT INTO cout_diffusion (cout_unitaire) VALUES
+	(400000);
