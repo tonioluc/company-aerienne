@@ -158,7 +158,16 @@ public class VolService {
 
             result.add(dto);
         }
-
+        // Affichage des vols avec détails
+        for (itu.company.aerienne.dto.VolDetailsDto v : result) {
+            System.out.println("Vol ID: " + v.getIdVol() + ", Trajet: " + v.getTrajetDescription());
+            for (itu.company.aerienne.dto.ClassePrixDto c : v.getClasses()) {
+                System.out.println("  Classe ID: " + c.getIdClassePlace() + ", Prix: " + c.getPrixUnitaire());
+                for (itu.company.aerienne.dto.CategoriePrixDto cat : c.getCategoriePrix()) {
+                    System.out.println("    Catégorie: " + cat.getLibelle() + ", Prix: " + cat.getPrix() + ", %: " + cat.getPourcentage());
+                }
+            }
+        }
         return result;
     }
 

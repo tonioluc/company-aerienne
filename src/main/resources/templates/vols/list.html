@@ -152,15 +152,15 @@
                             <td th:text="${cl.libelle}"></td>
                             <td class="text-center" th:text="${cl.nbrPlaces}"></td>
                             <td class="text-end price" th:text="${#strings.replace(#numbers.formatDecimal(cl.prixUnitaire,1,'POINT',0,'COMMA'), '.', ' ')} + ' Ar'"></td>
-                            <td>
-                                <!-- Vérifier s'il y a des prix par catégorie pour ce vol -->
-                                <div th:if="${#lists.isEmpty(cl.categoriePrix) or (#lists.size(cl.categoriePrix) > 0 and cl.categoriePrix[0].prix == null and cl.categoriePrix[0].pourcentage == null)}">
+                            <td th:with="validCats=${cl.categoriePrix == null ? null : cl.categoriePrix.?[prix != null or pourcentage != null]}">
+                                <!-- Afficher uniquement les catégories qui ont un prix OU un pourcentage -->
+                                <div th:if="${#lists.isEmpty(validCats)}">
                                     <span class="text-muted fst-italic">
                                         <i class="fa fa-info-circle"></i> Aucun prix par catégorie défini pour ce vol
                                     </span>
                                 </div>
-                                <ul class="mb-0" th:unless="${#lists.isEmpty(cl.categoriePrix) or (#lists.size(cl.categoriePrix) > 0 and cl.categoriePrix[0].prix == null and cl.categoriePrix[0].pourcentage == null)}">
-                                    <li th:each="cat : ${cl.categoriePrix}" th:if="${cat.prix != null or cat.pourcentage != null}">
+                                <ul class="mb-0" th:unless="${#lists.isEmpty(validCats)}">
+                                    <li th:each="cat : ${validCats}">
                                         <strong th:text="${cat.libelle}"></strong>
                                         <span th:if="${cat.prix != null}">: <span class="price" th:text="${#strings.replace(#numbers.formatDecimal(cat.prix,1,'POINT',0,'COMMA'), '.', ' ')} + ' Ar'"></span></span>
                                         <span th:if="${cat.prix == null and cat.pourcentage != null}">: <span th:text="${cat.pourcentage}"></span>% du prix</span>

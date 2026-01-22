@@ -1,4 +1,4 @@
--- \i /home/antonio/ITU/S5/md-baovola/aerienne/database/base.sql
+-- \i /home/antonio/ITU/S5/md-baovola/aerienne-itambarana/database/base.sql
 \c postgres;
 drop database if exists aerienne;
 
@@ -35,6 +35,7 @@ CREATE TABLE vol(
    date_heure_arrive TIMESTAMP,
    Id_trajet INTEGER NOT NULL,
    PRIMARY KEY(Id_vol),
+   FOREIGN KEY (Id_avion) REFERENCES avion(Id_avion),
    FOREIGN KEY(Id_trajet) REFERENCES trajet(Id_trajet)
 );
 CREATE TABLE classe_place(
@@ -85,4 +86,35 @@ CREATE TABLE prix_par_categorie(
    FOREIGN KEY(Id_vol) REFERENCES vol(Id_vol),
    FOREIGN KEY(Id_categorie_personne) REFERENCES categorie_client(Id_categorie_client),
    FOREIGN KEY(Id_classe_place) REFERENCES classe_place(Id_classe_place)
+);
+
+CREATE TABLE cout_diffusion (
+   Id_cout_diffusion SERIAL,
+   cout_unitaire NUMERIC(15,2),
+   PRIMARY KEY(Id_cout_diffusion)
+);
+CREATE TABLE societe (
+   Id_societe SERIAL,
+   nom VARCHAR(100),
+   PRIMARY KEY(Id_societe)
+);
+CREATE TABLE diffusion_publicitaire (
+   Id_diffusion_publicitaire SERIAL,
+   Id_societe INTEGER NOT NULL,
+   Id_vol INTEGER NOT NULL,
+   mois int,
+   annee int,
+   nombre_diffusion INTEGER,
+   PRIMARY KEY(Id_diffusion_publicitaire),
+   FOREIGN KEY(Id_societe) REFERENCES societe(Id_societe),
+   FOREIGN KEY(Id_vol) REFERENCES vol(Id_vol)
+);
+
+CREATE TABLE paiement_pub (
+   Id_paiement_pub SERIAL,
+   date_paiement TIMESTAMP,
+   montant NUMERIC(15,2),
+   Id_societe INTEGER NOT NULL,
+   PRIMARY KEY(Id_paiement_pub),
+   FOREIGN KEY(Id_societe) REFERENCES societe(Id_societe)
 );
