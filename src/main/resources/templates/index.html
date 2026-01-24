@@ -14,101 +14,92 @@
         <p class="lead text-muted">Bienvenue sur le système de gestion des vols et achats de places</p>
     </div>
 
-    <!-- Section Chiffre d'Affaires -->
+    <!-- Liens rapides (remplace filtre CA obsolète) -->
     <div class="row justify-content-center mb-5">
         <div class="col-md-10">
             <div class="card shadow-sm">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fa fa-line-chart"></i> Chiffre d'Affaires par Date</h5>
+                    <h5 class="mb-0"><i class="fa fa-link"></i> Liens rapides</h5>
                 </div>
                 <div class="card-body">
-                    <form th:action="@{/}" method="get" class="row g-3 align-items-end">
-                        <div class="col-md-6">
-                            <label for="date" class="form-label">Sélectionner une date</label>
-                            <input type="date" id="date" name="date" class="form-control" 
-                                   th:value="${dateRecherche}" required />
-                        </div>
-                        <div class="col-md-3">
-                            <button type="submit" class="btn btn-info w-100">
-                                <i class="fa fa-search"></i> Rechercher
-                            </button>
-                        </div>
-                    </form>
-
-                    <!-- Résultats du chiffre d'affaires -->
-                    <div th:if="${chiffreAffaire != null}" class="mt-4">
-                        <div class="alert alert-success">
-                            <h5><i class="fa fa-calendar"></i> Résultats pour le <span th:text="${#temporals.format(dateRecherche, 'dd/MM/yyyy')}"></span></h5>
-                        </div>
-                        <div class="row text-center">
-                            <div class="col-md-6">
-                                <div class="card bg-light">
-                                    <div class="card-body">
-                                        <h3 class="text-primary" th:text="${chiffreAffaire.totalPlacesVendues}">0</h3>
-                                        <p class="mb-0">Places Vendues</p>
-                                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a th:href="@{/avions}" class="card h-100 text-decoration-none text-dark">
+                                <div class="card-body text-center">
+                                    <i class="fa fa-plane fa-2x text-primary mb-2"></i>
+                                    <h6 class="card-title">Gestion Avions</h6>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card bg-light">
-                                    <div class="card-body">
-                                        <h3 class="text-success">
-                                            <span th:text="${#strings.replace(#numbers.formatDecimal(chiffreAffaire.chiffreAffaires, 1, 'POINT', 0, 'COMMA'), '.', ' ')}">0</span> Ar
-                                        </h3>
-                                        <p class="mb-0">Chiffre d'Affaires</p>
-                                    </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a th:href="@{/valeur-maximale}" class="card h-100 text-decoration-none text-dark">
+                                <div class="card-body text-center">
+                                    <i class="fa fa-trophy fa-2x text-warning mb-2"></i>
+                                    <h6 class="card-title">Valeur Maximale Avion</h6>
                                 </div>
-                            </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a th:href="@{/vols}" class="card h-100 text-decoration-none text-dark">
+                                <div class="card-body text-center">
+                                    <i class="fa fa-map fa-2x text-success mb-2"></i>
+                                    <h6 class="card-title">Liste des Vols</h6>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a th:href="@{/chiffre-affaire-vol}" class="card h-100 text-decoration-none text-dark">
+                                <div class="card-body text-center">
+                                    <i class="fa fa-usd fa-2x text-success mb-2"></i>
+                                    <h6 class="card-title">Chiffre d'affaire par vol</h6>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a th:href="@{/achats}" class="card h-100 text-decoration-none text-dark">
+                                <div class="card-body text-center">
+                                    <i class="fa fa-ticket fa-2x text-primary mb-2"></i>
+                                    <h6 class="card-title">Acheter des Places</h6>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a th:href="@{/achats/liste}" class="card h-100 text-decoration-none text-dark">
+                                <div class="card-body text-center">
+                                    <i class="fa fa-list fa-2x text-secondary mb-2"></i>
+                                    <h6 class="card-title">Liste des Achats</h6>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a th:href="@{/ajouter-diffusion}" class="card h-100 text-decoration-none text-dark">
+                                <div class="card-body text-center">
+                                    <i class="fa fa-bullhorn fa-2x text-info mb-2"></i>
+                                    <h6 class="card-title">Ajouter Diffusion</h6>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a th:href="@{/chiffre-affaire-diffusion}" class="card h-100 text-decoration-none text-dark">
+                                <div class="card-body text-center">
+                                    <i class="fa fa-bar-chart fa-2x text-warning mb-2"></i>
+                                    <h6 class="card-title">Valeur des Diffusions</h6>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a th:href="@{/factures}" class="card h-100 text-decoration-none text-dark">
+                                <div class="card-body text-center">
+                                    <i class="fa fa-file-text fa-2x text-danger mb-2"></i>
+                                    <h6 class="card-title">Liste des Factures</h6>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Section Liens principaux -->
-    <div class="row justify-content-center">
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="fa fa-shopping-cart fa-3x text-primary mb-3"></i>
-                    <h5 class="card-title">Acheter des Places</h5>
-                    <p class="card-text">Réservez vos places sur les vols disponibles.</p>
-                    <a th:href="@{/achats}" class="btn btn-primary">
-                        <i class="fa fa-ticket"></i> Acheter des places
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="fa fa-list-alt fa-3x text-success mb-3"></i>
-                    <h5 class="card-title">Liste des Achats</h5>
-                    <p class="card-text">Consultez toutes les places achetées.</p>
-                    <a th:href="@{/achats/liste}" class="btn btn-success">
-                        <i class="fa fa-eye"></i> Voir les achats
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="fa fa-bar-chart fa-3x text-warning mb-3"></i>
-                    <h5 class="card-title">Chiffre d'Affaires Détaillé</h5>
-                    <p class="card-text">Voir le CA par vol avec détails des achats.</p>
-                    <a th:href="@{/chiffre-affaires}" class="btn btn-warning">
-                        <i class="fa fa-bar-chart"></i> Voir les détails
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
