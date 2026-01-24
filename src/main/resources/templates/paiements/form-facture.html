@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Paiement de Facture</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+<div th:insert="~{sidebar}"></div>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fa fa-money"></i> Paiement de Facture
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Messages d'alerte -->
+                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span th:text="${successMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <span th:text="${errorMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <form th:action="@{/paiements-facture/ajouter}" method="post">
+                        <div class="row">
+                            <!-- Colonne gauche: Sélection -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="idSociete" class="form-label">Société</label>
+                                    <select class="form-select" id="idSociete" required>
+                                        <option value="">-- Sélectionner une société --</option>
+                                        <option th:each="societe : ${societes}" 
+                                                th:value="${societe.idSociete}" 
+                                                th:text="${societe.nom}"></option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="idFactureMere" class="form-label">Facture</label>
+                                    <select name="idFactureMere" class="form-select" id="idFactureMere" required>
+                                        <option value="">-- Sélectionner d'abord une société --</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="datePaiement" class="form-label">Date de paiement</label>
+                                    <input type="datetime-local" name="datePaiement" class="form-control" id="datePaiement" required/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="montantPaye" class="form-label">Montant à payer (Ar)</label>
+                                    <input type="number" step="0.01" name="montantPaye" class="form-control" id="montantPaye" 
+                                           min="0" required placeholder="Entrez le montant"/>
+                                </div>
+                            </div>
+
+                            <!-- Colonne droite: Détails de la facture (lecture seule) -->
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h5 class="mb-0"><i class="fa fa-info-circle"></i> Détails de la facture</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted">Société</label>
+                                            <input type="text" class="form-control" id="detailSociete" readonly 
+                                                   placeholder="Sélectionnez une facture"/>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted">Période (Mois/Année)</label>
+                                            <input type="text" class="form-control" id="detailPeriode" readonly 
+                                                   placeholder="-"/>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted">Montant Total</label>
+                                            <input type="text" class="form-control" id="detailMontantTotal" readonly 
+                                                   placeholder="-"/>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted">Montant Déjà Payé</label>
+                                            <input type="text" class="form-control text-success" id="detailMontantPaye" readonly 
+                                                   placeholder="-"/>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted fw-bold">Montant Restant</label>
+                                            <input type="text" class="form-control fw-bold text-danger" id="detailMontantRestant" readonly 
+                                                   placeholder="-"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr/>
+                        <div class="d-flex justify-content-between">
+                            <a th:href="@{/paiements-facture}" class="btn btn-secondary">
+                                <i class="fa fa-arrow-left"></i> Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-save"></i> Enregistrer le paiement
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const societeSelect = document.getElementById('idSociete');
+    const factureSelect = document.getElementById('idFactureMere');
+    const montantInput = document.getElementById('montantPaye');
+
+    // Quand on change de société, charger les factures
+    societeSelect.addEventListener('change', function() {
+        const idSociete = this.value;
+        
+        // Réinitialiser les détails
+        clearFactureDetails();
+        
+        if (!idSociete) {
+            factureSelect.innerHTML = '<option value="">-- Sélectionner d\'abord une société --</option>';
+            return;
+        }
+
+        // Charger les factures non soldées de cette société
+        fetch(`/paiements-facture/api/factures/${idSociete}`)
+            .then(response => response.json())
+            .then(factures => {
+                factureSelect.innerHTML = '<option value="">-- Sélectionner une facture --</option>';
+                
+                if (factures.length === 0) {
+                    factureSelect.innerHTML += '<option value="" disabled>Aucune facture non soldée</option>';
+                } else {
+                    factures.forEach(facture => {
+                        const option = document.createElement('option');
+                        option.value = facture.idFactureMere;
+                        option.textContent = facture.libelle;
+                        option.dataset.montantTotal = facture.montantTotal;
+                        option.dataset.montantPaye = facture.montantPaye;
+                        option.dataset.montantRestant = facture.montantRestant;
+                        option.dataset.mois = facture.mois;
+                        option.dataset.annee = facture.annee;
+                        option.dataset.nomSociete = facture.nomSociete;
+                        factureSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des factures:', error);
+                factureSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+            });
+    });
+
+    // Quand on sélectionne une facture, afficher les détails
+    factureSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        
+        if (!this.value) {
+            clearFactureDetails();
+            return;
+        }
+
+        const moisNoms = ["", "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", 
+                         "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
+        document.getElementById('detailSociete').value = selectedOption.dataset.nomSociete || '-';
+        document.getElementById('detailPeriode').value = 
+            (moisNoms[selectedOption.dataset.mois] || '') + ' ' + (selectedOption.dataset.annee || '');
+        document.getElementById('detailMontantTotal').value = 
+            formatMontant(selectedOption.dataset.montantTotal) + ' Ar';
+        document.getElementById('detailMontantPaye').value = 
+            formatMontant(selectedOption.dataset.montantPaye) + ' Ar';
+        document.getElementById('detailMontantRestant').value = 
+            formatMontant(selectedOption.dataset.montantRestant) + ' Ar';
+
+        // Mettre le max sur le champ montant
+        montantInput.max = selectedOption.dataset.montantRestant;
+        montantInput.placeholder = 'Max: ' + formatMontant(selectedOption.dataset.montantRestant) + ' Ar';
+    });
+
+    function clearFactureDetails() {
+        document.getElementById('detailSociete').value = '';
+        document.getElementById('detailPeriode').value = '';
+        document.getElementById('detailMontantTotal').value = '';
+        document.getElementById('detailMontantPaye').value = '';
+        document.getElementById('detailMontantRestant').value = '';
+        montantInput.max = '';
+        montantInput.placeholder = 'Entrez le montant';
+    }
+
+    function formatMontant(value) {
+        if (!value) return '0';
+        return parseFloat(value).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Initialiser la date avec la date/heure actuelle
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 16);
+    document.getElementById('datePaiement').value = dateStr;
+</script>
+</body>
+</html>

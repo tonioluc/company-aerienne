@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chiffre d'affaire par vol</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <div th:insert="~{sidebar}"></div>
+
+    <div class="container mt-4">
+        <div class="mb-4">
+            <h1><i class="fa fa-bar-chart"></i> Chiffre d'Affaires par Vol</h1>
+            <p class="text-muted">Détail des revenus par vol (tickets vendus + publicité)</p>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Aéroport Départ</th>
+                        <th>Aéroport Arrivée</th>
+                        <th>Avion</th>
+                        <th>Date Départ</th>
+                        <th>Heure Départ</th>
+                        <th class="text-end">Montant Tickets Vendus</th>
+                        <th class="text-end">Montant Publicité</th>
+                        <th class="text-end">Montant CA Total</th>
+                        <th class="text-end">Montant Payé (Pub)</th>
+                        <th class="text-end">Reste à Payer (Pub)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="caVol : ${chiffreAffairesVols}">
+                        <td th:text="${caVol.vol.aeroportDepart}"></td>
+                        <td th:text="${caVol.vol.aeroportArrivee}"></td>
+                        <td th:text="${caVol.vol.avion}"></td>
+                        <td th:text="${caVol.vol.dateHeureDepart != null ? #temporals.format(caVol.vol.dateHeureDepart, 'dd/MM/yyyy') : '-'}"></td>
+                        <td th:text="${caVol.vol.dateHeureDepart != null ? #temporals.format(caVol.vol.dateHeureDepart, 'HH:mm') : '-'}"></td>
+                        <td class="text-end" th:text="${#strings.replace(#numbers.formatDecimal(caVol.montantTicketVendu, 1, 'POINT', 0, 'COMMA'), '.', ' ') + ' Ar'}"></td>
+                        <td class="text-end" th:text="${#strings.replace(#numbers.formatDecimal(caVol.montantPublicite, 1, 'POINT', 0, 'COMMA'), '.', ' ') + ' Ar'}"></td>
+                        <td class="text-end fw-bold" th:text="${#strings.replace(#numbers.formatDecimal(caVol.montantTotal, 1, 'POINT', 0, 'COMMA'), '.', ' ') + ' Ar'}"></td>
+                        <td class="text-end text-success" th:text="${#strings.replace(#numbers.formatDecimal(caVol.montantAPayer, 1, 'POINT', 0, 'COMMA'), '.', ' ') + ' Ar'}"></td>
+                        <td class="text-end text-danger" th:text="${#strings.replace(#numbers.formatDecimal(caVol.montantResteAPayer, 1, 'POINT', 0, 'COMMA'), '.', ' ') + ' Ar'}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(chiffreAffairesVols)}">
+                        <td colspan="10" class="text-center text-muted">Aucun vol trouvé</td>
+                    </tr>
+                </tbody>
+                <tfoot class="table-secondary">
+                    <tr>
+                        <th colspan="5" class="text-end">Total Général</th>
+                        <th class="text-end" th:text="${#strings.replace(#numbers.formatDecimal(totalMontantTicketVendu, 1, 'POINT', 0, 'COMMA'), '.', ' ') + ' Ar'}"></th>
+                        <th class="text-end" th:text="${#strings.replace(#numbers.formatDecimal(totalMontantPublicite, 1, 'POINT', 0, 'COMMA'), '.', ' ') + ' Ar'}"></th>
+                        <th class="text-end fw-bold" th:text="${#strings.replace(#numbers.formatDecimal(totalMontantTotal, 1, 'POINT', 0, 'COMMA'), '.', ' ') + ' Ar'}"></th>
+                        <th class="text-end text-success" th:text="${#strings.replace(#numbers.formatDecimal(totalMontantAPayer, 1, 'POINT', 0, 'COMMA'), '.', ' ') + ' Ar'}"></th>
+                        <th class="text-end text-danger" th:text="${#strings.replace(#numbers.formatDecimal(totalMontantResteAPayer, 1, 'POINT', 0, 'COMMA'), '.', ' ') + ' Ar'}"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
