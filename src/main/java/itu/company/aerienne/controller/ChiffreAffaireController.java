@@ -44,6 +44,6 @@ public class ChiffreAffaireController {
             model.addAttribute("totalCAGlobal", totalCAGlobal);
         }
 
-        return "chiffre-affaires/chiffre-affaires";
+        return "chiffre-affaires/chiffre-affaires-vol-jour";
     }
 }

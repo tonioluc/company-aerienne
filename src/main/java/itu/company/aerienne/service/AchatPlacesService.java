@@ -1,7 +1,6 @@
 package itu.company.aerienne.service;
 
 import itu.company.aerienne.dto.AchatPlaceDto;
-import itu.company.aerienne.dto.ChiffreAffaireDto;
 import itu.company.aerienne.model.AchatPlaces;
 import itu.company.aerienne.model.Aeroport;
 import itu.company.aerienne.model.CategorieClient;
@@ -18,10 +17,8 @@ import itu.company.aerienne.repository.VolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -146,11 +143,7 @@ public class AchatPlacesService {
     /**
      * Retourne le chiffre d'affaires pour une date donnée.
      */
-    public ChiffreAffaireDto getChiffreAffairesByDate(LocalDate date) {
-        Integer totalPlaces = repository.getTotalPlacesVenduesByDate(date);
-        BigDecimal chiffreAffaires = repository.getChiffreAffairesByDate(date);
-        return new ChiffreAffaireDto(totalPlaces, chiffreAffaires);
-    }
+    // Méthode obsolète supprimée: getChiffreAffairesByDate
 
     private String formatAeroport(Integer idAeroport) {
         if (idAeroport == null) {

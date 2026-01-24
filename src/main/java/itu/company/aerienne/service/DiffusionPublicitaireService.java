@@ -5,27 +5,29 @@ import itu.company.aerienne.dto.DiffusionFormDto;
 import itu.company.aerienne.model.Aeroport;
 import itu.company.aerienne.model.CoutDiffusion;
 import itu.company.aerienne.model.DiffusionPublicitaire;
+import itu.company.aerienne.model.FactureDiffusion;
+import itu.company.aerienne.model.FactureMere;
 import itu.company.aerienne.model.Societe;
 import itu.company.aerienne.model.Trajet;
 import itu.company.aerienne.model.Vol;
 import itu.company.aerienne.repository.AeroportRepository;
 import itu.company.aerienne.repository.CoutDiffusionRepository;
 import itu.company.aerienne.repository.DiffusionPublicitaireRepository;
-import itu.company.aerienne.repository.PaiementPubRepository;
+import itu.company.aerienne.repository.FactureDiffusionRepository;
+import itu.company.aerienne.repository.FactureMereRepository;
 import itu.company.aerienne.repository.SocieteRepository;
 import itu.company.aerienne.repository.TrajetRepository;
 import itu.company.aerienne.repository.VolRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -49,8 +51,12 @@ public class DiffusionPublicitaireService {
     @Autowired
     private CoutDiffusionRepository coutDiffusionRepository;
 
+
     @Autowired
-    private PaiementPubRepository paiementPubRepository;
+    private FactureMereRepository factureMereRepository;
+
+    @Autowired
+    private FactureDiffusionRepository factureDiffusionRepository;
 
     public List<DiffusionPublicitaire> findAll() {
         return diffusionRepository.findAll();
@@ -67,27 +73,63 @@ public class DiffusionPublicitaireService {
     /**
      * Ajoute une diffusion publicitaire à partir du formulaire.
      * Le mois et l'année sont extraits automatiquement de la date de départ du vol.
+     * Crée ou met à jour automatiquement la facture_mere et facture_diffusion.
      */
+    @Transactional
     public DiffusionPublicitaire ajouterDiffusion(DiffusionFormDto formDto) {
         // Récupérer le vol pour obtenir la date de départ
         Vol vol = volRepository.findById(formDto.getVol())
                 .orElseThrow(() -> new RuntimeException("Vol non trouvé avec l'id: " + formDto.getVol()));
 
         LocalDateTime dateHeureDepart = vol.getDateHeureDepart();
+        Integer mois = dateHeureDepart.getMonthValue();
+        Integer annee = dateHeureDepart.getYear();
+        Integer idSociete = formDto.getSociete();
 
         // Créer la diffusion avec mois et année dénormalisés
         DiffusionPublicitaire diffusion = new DiffusionPublicitaire();
-        diffusion.setIdSociete(formDto.getSociete());
+        diffusion.setIdSociete(idSociete);
         diffusion.setIdVol(formDto.getVol());
         diffusion.setNombreDiffusion(formDto.getNombreDiffusion());
+        diffusion.setMois(mois);
+        diffusion.setAnnee(annee);
 
-        // Dénormalisation: mois = numéro du mois (1-12)
-        diffusion.setMois(dateHeureDepart.getMonthValue());
+        // Sauvegarder la diffusion
+        DiffusionPublicitaire savedDiffusion = diffusionRepository.save(diffusion);
 
-        // Dénormalisation: année = année (ex: 2026)
-        diffusion.setAnnee(dateHeureDepart.getYear());
+        // Calculer le montant de cette diffusion
+        BigDecimal coutUnitaire = getCoutUnitaire();
+        BigDecimal montantDiffusion = coutUnitaire.multiply(BigDecimal.valueOf(formDto.getNombreDiffusion()));
 
-        return diffusionRepository.save(diffusion);
+        // Vérifier si une facture_mere existe pour cette société/mois/année
+        FactureMere factureMere = factureMereRepository.findByIdSocieteAndMoisAndAnnee(idSociete, mois, annee);
+
+        if (factureMere == null) {
+            // Créer une nouvelle facture_mere
+            factureMere = new FactureMere();
+            factureMere.setIdSociete(idSociete);
+            factureMere.setMois(mois);
+            factureMere.setAnnee(annee);
+            factureMere.setMontantTotal(montantDiffusion);
+            factureMere.setMontantPaye(BigDecimal.ZERO);
+            factureMere = factureMereRepository.save(factureMere);
+        } else {
+            // Mettre à jour le montant_total de la facture_mere existante
+            BigDecimal nouveauTotal = factureMere.getMontantTotal() != null 
+                    ? factureMere.getMontantTotal().add(montantDiffusion) 
+                    : montantDiffusion;
+            factureMere.setMontantTotal(nouveauTotal);
+            factureMere = factureMereRepository.save(factureMere);
+        }
+
+        // Créer la facture_diffusion (facture fille)
+        FactureDiffusion factureDiffusion = new FactureDiffusion();
+        factureDiffusion.setIdFactureMere(factureMere.getIdFactureMere());
+        factureDiffusion.setIdDiffusionPublicitaire(savedDiffusion.getIdDiffusionPublicitaire());
+        factureDiffusion.setMontant(montantDiffusion);
+        factureDiffusionRepository.save(factureDiffusion);
+
+        return savedDiffusion;
     }
 
     /**
@@ -102,9 +144,6 @@ public class DiffusionPublicitaireService {
 
         // Récupérer les diffusions pour le mois et l'année donnés
         List<DiffusionPublicitaire> diffusions = diffusionRepository.findByMoisAndAnnee(mois, annee);
-
-        // Map pour stocker le total des coûts par société
-        Map<Integer, BigDecimal> totalCoutParSociete = new HashMap<>();
 
         for (DiffusionPublicitaire diffusion : diffusions) {
             DiffusionChiffreAffaireDto dto = new DiffusionChiffreAffaireDto();
@@ -140,34 +179,48 @@ public class DiffusionPublicitaireService {
             // Nombre de diffusion
             dto.setNombreDiffusion(diffusion.getNombreDiffusion());
 
-            // Calculer le total du coût = nombre_diffusion * cout_unitaire
-            BigDecimal totalCout = coutUnitaire.multiply(BigDecimal.valueOf(diffusion.getNombreDiffusion() != null ? diffusion.getNombreDiffusion() : 0));
-            dto.setTotalCout(totalCout);
+            // Récupérer facture mère et facture diffusion
+            FactureMere factureMere = factureMereRepository
+                    .findByIdSocieteAndMoisAndAnnee(idSociete, diffusion.getMois(), diffusion.getAnnee());
+            FactureDiffusion factureDiffusion = factureDiffusionRepository
+                    .findByIdDiffusionPublicitaire(diffusion.getIdDiffusionPublicitaire());
 
-            // Accumuler le coût par société
-            totalCoutParSociete.merge(idSociete, totalCout, BigDecimal::add);
+            // Montant de la diffusion (priorité à la facture de diffusion si disponible)
+            BigDecimal montantDiffusion = (factureDiffusion != null && factureDiffusion.getMontant() != null)
+                    ? factureDiffusion.getMontant()
+                    : coutUnitaire.multiply(BigDecimal.valueOf(diffusion.getNombreDiffusion() != null ? diffusion.getNombreDiffusion() : 0));
+
+            dto.setTotalCout(montantDiffusion);
+
+            // Paiement proportionnel en fonction de la facture mère
+            BigDecimal payeMere = (factureMere != null && factureMere.getMontantPaye() != null)
+                    ? factureMere.getMontantPaye()
+                    : BigDecimal.ZERO;
+            BigDecimal totalMere = (factureMere != null && factureMere.getMontantTotal() != null)
+                    ? factureMere.getMontantTotal()
+                    : BigDecimal.ZERO;
+
+            BigDecimal montantPayeDiffusion = BigDecimal.ZERO;
+            if (totalMere != null && totalMere.compareTo(BigDecimal.ZERO) > 0) {
+                // ratio = (montant diffusion) / (total facture mère)
+                java.math.RoundingMode rm = java.math.RoundingMode.HALF_UP;
+                BigDecimal ratio = montantDiffusion.divide(totalMere, 6, rm);
+                montantPayeDiffusion = payeMere.multiply(ratio);
+                // Ne pas dépasser le montant de la diffusion
+                if (montantPayeDiffusion.compareTo(montantDiffusion) > 0) {
+                    montantPayeDiffusion = montantDiffusion;
+                }
+            }
+
+            dto.setMontantPaye(montantPayeDiffusion);
+
+            BigDecimal resteAPayer = montantDiffusion.subtract(montantPayeDiffusion);
+            if (resteAPayer.compareTo(BigDecimal.ZERO) < 0) {
+                resteAPayer = BigDecimal.ZERO;
+            }
+            dto.setResteAPayer(resteAPayer);
 
             result.add(dto);
-        }
-
-        // Calculer le montant payé et le reste à payer pour chaque société
-        for (DiffusionChiffreAffaireDto dto : result) {
-            Integer idSociete = dto.getIdSociete();
-            
-            // Récupérer le total payé par cette société
-            BigDecimal totalPaye = paiementPubRepository.getTotalPaiementBySociete(idSociete);
-            if (totalPaye == null) {
-                totalPaye = BigDecimal.ZERO;
-            }
-            
-            // Total des coûts pour cette société
-            BigDecimal totalCoutSociete = totalCoutParSociete.getOrDefault(idSociete, BigDecimal.ZERO);
-            
-            dto.setMontantPaye(totalPaye);
-            
-            // Reste à payer = total coût société - total payé
-            BigDecimal resteAPayer = totalCoutSociete.subtract(totalPaye);
-            dto.setResteAPayer(resteAPayer.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : resteAPayer);
         }
 
         return result;

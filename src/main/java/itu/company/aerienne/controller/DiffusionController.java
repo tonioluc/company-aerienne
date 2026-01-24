@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -57,10 +58,10 @@ public class DiffusionController {
             Model model) {
 
         if (mois == null) {
-            mois = 12;
+            mois = LocalDate.now().getMonthValue();
         }
         if (annee == null) {
-            annee = 2025;
+            annee = LocalDate.now().getYear();
         }
 
         model.addAttribute("moisRecherche", mois);
