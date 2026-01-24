@@ -26,59 +26,117 @@
             </a>
         </li>
         
+        <!-- Avions (dropdown) -->
         <li class="nav-item mb-2">
-            <a class="nav-link text-white d-flex align-items-center" th:href="@{/avions}">
-                <i class="bi bi-airplane me-2"></i> Gestion Avions
+            <a class="nav-link text-white d-flex align-items-center justify-content-between submenu-toggle" href="#" role="button" aria-expanded="false">
+                <span><i class="bi bi-airplane me-2"></i> Avions</span>
+                <i class="bi bi-chevron-down small"></i>
             </a>
+            <ul class="nav flex-column ms-3 submenu">
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white d-flex align-items-center" th:href="@{/avions}">
+                        <i class="bi bi-gear me-2"></i> Gestion Avions
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white d-flex align-items-center" th:href="@{/valeur-maximale}">
+                        <i class="bi bi-trophy me-2"></i> Valeur Maximale Avion
+                    </a>
+                </li>
+            </ul>
         </li>
                 
+        <!-- Vols (dropdown) -->
         <li class="nav-item mb-2">
-            <a class="nav-link text-white d-flex align-items-center" th:href="@{/vols}">
-                <i class="bi bi-map me-2"></i> Liste des Vols
+            <a class="nav-link text-white d-flex align-items-center justify-content-between submenu-toggle" href="#" role="button" aria-expanded="false">
+                <span><i class="bi bi-map me-2"></i> Vols</span>
+                <i class="bi bi-chevron-down small"></i>
             </a>
+            <ul class="nav flex-column ms-3 submenu">
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white d-flex align-items-center" th:href="@{/vols}">
+                        <i class="bi bi-list-ul me-2"></i> Liste des Vols
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white d-flex align-items-center" th:href="@{/chiffre-affaire-vol}">
+                        <i class="bi bi-currency-dollar me-2"></i> Chiffre d'affaire par vol
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-white d-flex align-items-center" th:href="@{/chiffre-affaires}">
+                        <i class="bi bi-graph-up me-2"></i> Chiffre d'Affaires par Jour
+                    </a>
+                </li>
+            </ul>
         </li>
         
+        <!-- Achats (dropdown) -->
         <li class="nav-item mb-2">
-            <a class="nav-link text-white d-flex align-items-center" th:href="@{/achats}">
-                <i class="bi bi-ticket-perforated me-2"></i> Acheter des Places
+            <a class="nav-link text-white d-flex align-items-center justify-content-between submenu-toggle" href="#" role="button" aria-expanded="false">
+                <span><i class="bi bi-ticket-perforated me-2"></i> Achats</span>
+                <i class="bi bi-chevron-down small"></i>
             </a>
+            <ul class="nav flex-column ms-3 submenu">
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white d-flex align-items-center" th:href="@{/achats}">
+                        <i class="bi bi-plus-circle me-2"></i> Acheter des Places
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white d-flex align-items-center" th:href="@{/achats/liste}">
+                        <i class="bi bi-receipt me-2"></i> Liste des Achats
+                    </a>
+                </li>
+            </ul>
         </li>
         
+        <!-- Diffusions (dropdown) -->
         <li class="nav-item mb-2">
-            <a class="nav-link text-white d-flex align-items-center" th:href="@{/achats/liste}">
-                <i class="bi bi-receipt me-2"></i> Liste des Achats
+            <a class="nav-link text-white d-flex align-items-center justify-content-between submenu-toggle" href="#" role="button" aria-expanded="false">
+                <span><i class="bi bi-speaker me-2"></i> Diffusions</span>
+                <i class="bi bi-chevron-down small"></i>
             </a>
-        </li>
-        
-        <li class="nav-item mb-2">
-            <a class="nav-link text-white d-flex align-items-center" th:href="@{/chiffre-affaires}">
-                <i class="bi bi-graph-up me-2"></i> Chiffre d'Affaires
-            </a>
-        </li>
-        
-        <li class="nav-item mb-2">
-            <a class="nav-link text-white d-flex align-items-center" th:href="@{/valeur-maximale}">
-                <i class="bi bi-trophy me-2"></i> Valeur Maximale Avion
-            </a>
+            <ul class="nav flex-column ms-3 submenu">
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white d-flex align-items-center" th:href="@{/ajouter-diffusion}">
+                        <i class="bi bi-plus-square me-2"></i> Ajouter Diffusion Publicitaire
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white d-flex align-items-center" th:href="@{/chiffre-affaire-diffusion}">
+                        <i class="bi bi-bar-chart-line me-2"></i> Valeur relatif aux diffusions
+                    </a>
+                </li>
+            </ul>
         </li>
 
+        <!-- Paiements / Factures (dropdown) -->
         <li class="nav-item mb-2">
-            <a class="nav-link text-white d-flex align-items-center" th:href="@{/ajouter-diffusion}">
-            <i class="bi bi-speaker me-2"></i> Ajouter Diffusion Publicitaire
+            <a class="nav-link text-white d-flex align-items-center justify-content-between submenu-toggle" href="#" role="button" aria-expanded="false">
+                <span><i class="bi bi-folder2-open me-2"></i> Factures</span>
+                <i class="bi bi-chevron-down small"></i>
             </a>
+            <ul class="nav flex-column ms-3 submenu">
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white d-flex align-items-center" th:href="@{/paiements-facture}">
+                        <i class="bi bi-receipt me-2"></i> Paiements de Factures
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white d-flex align-items-center" th:href="@{/paiements-facture/ajouter}">
+                        <i class="bi bi-cash-coin me-2"></i> Nouveau Paiement Facture
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white d-flex align-items-center" th:href="@{/factures}">
+                        <i class="bi bi-file-earmark-text me-2"></i> Liste des Factures
+                    </a>
+                </li>
+            </ul>
         </li>
 
-        <li class="nav-item mb-2">
-            <a class="nav-link text-white d-flex align-items-center" th:href="@{/chiffre-affaire-diffusion}">
-                <i class="bi bi-bar-chart-line me-2"></i> Valeur relatif aux diffusions
-            </a>
-        </li>
-
-        <li class="nav-item mb-2">
-            <a class="nav-link text-white d-flex align-items-center" th:href="@{/paiements-pub}">
-                <i class="bi bi-currency-dollar me-2"></i> Paiements Publicitaires
-            </a>
-        </li>
+        
     </ul>
     
     <hr class="bg-light mt-4">
@@ -112,15 +170,20 @@
     }
     
     .sidebar {
-        min-height: 100vh;
+        /* Fix height to viewport and allow scrolling when content overflows */
+        height: 100vh;
+        box-sizing: border-box;
         position: fixed;
         width: 250px;
         left: 0;
         top: 0;
+        bottom: 0;
         box-shadow: 2px 0 5px rgba(0,0,0,0.1);
         transition: transform 0.3s ease;
         z-index: 1040;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 1rem; /* ensure last items are reachable */
     }
     
     .sidebar-overlay {
@@ -149,6 +212,28 @@
     .sidebar .nav-link.active {
         background-color: rgba(13,110,253,0.2);
         border-left-color: #0d6efd;
+    }
+
+    /* Submenu (dropdown) styles */
+    .submenu {
+        display: none;
+    }
+
+    .submenu.show {
+        display: block;
+    }
+
+    .submenu .nav-link {
+        padding-left: 18px !important;
+        font-size: 0.95rem;
+    }
+
+    .bi-chevron-down {
+        transition: transform 0.2s ease;
+    }
+
+    .bi-chevron-down.rotated {
+        transform: rotate(180deg);
     }
     
     /* Responsive styles */
@@ -207,14 +292,32 @@
             });
         }
         
-        // Fermer le sidebar lors du clic sur un lien (mobile uniquement)
+        // Fermer le sidebar lors du clic sur un lien (mobile uniquement),
+        // mais ignorer les toggles de sous-menu
         const navLinks = sidebar.querySelectorAll('.nav-link');
         navLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove('active');
-                    sidebarOverlay.classList.remove('active');
-                }
+            if (!link.classList.contains('submenu-toggle')) {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('active');
+                        sidebarOverlay.classList.remove('active');
+                    }
+                });
+            }
+        });
+
+        // Gestion des dropdowns génériques
+        const submenuToggles = sidebar.querySelectorAll('.submenu-toggle');
+        submenuToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                const parentLi = this.closest('li');
+                const submenu = parentLi ? parentLi.querySelector('.submenu') : null;
+                if (!submenu) return;
+                const isShown = submenu.classList.toggle('show');
+                const chevron = this.querySelector('.bi-chevron-down');
+                if (chevron) chevron.classList.toggle('rotated', isShown);
+                this.setAttribute('aria-expanded', isShown);
             });
         });
     });
