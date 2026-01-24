@@ -38,6 +38,7 @@ CREATE TABLE vol(
    FOREIGN KEY (Id_avion) REFERENCES avion(Id_avion),
    FOREIGN KEY(Id_trajet) REFERENCES trajet(Id_trajet)
 );
+
 CREATE TABLE classe_place(
    Id_classe_place SERIAL,
    libelle VARCHAR(50),
@@ -93,11 +94,13 @@ CREATE TABLE cout_diffusion (
    cout_unitaire NUMERIC(15,2),
    PRIMARY KEY(Id_cout_diffusion)
 );
+
 CREATE TABLE societe (
    Id_societe SERIAL,
    nom VARCHAR(100),
    PRIMARY KEY(Id_societe)
 );
+
 CREATE TABLE diffusion_publicitaire (
    Id_diffusion_publicitaire SERIAL,
    Id_societe INTEGER NOT NULL,
@@ -110,11 +113,33 @@ CREATE TABLE diffusion_publicitaire (
    FOREIGN KEY(Id_vol) REFERENCES vol(Id_vol)
 );
 
-CREATE TABLE paiement_pub (
-   Id_paiement_pub SERIAL,
-   date_paiement TIMESTAMP,
-   montant NUMERIC(15,2),
+
+create table facture_mere(
+   Id_facture_mere SERIAL,
    Id_societe INTEGER NOT NULL,
-   PRIMARY KEY(Id_paiement_pub),
-   FOREIGN KEY(Id_societe) REFERENCES societe(Id_societe)
+   mois INTEGER,
+   annee INTEGER,
+   montant_total NUMERIC(15,2),
+   montant_paye NUMERIC(15,2),
+   FOREIGN KEY(Id_societe) REFERENCES societe(Id_societe),   
+   PRIMARY KEY(Id_facture_mere)
+);
+
+create table facture_diffusion(
+   Id_facture_diffusion SERIAL,
+   Id_facture_mere INTEGER NOT NULL,
+   Id_diffusion_publicitaire INTEGER NOT NULL,
+   montant NUMERIC(15,2),
+   FOREIGN KEY(Id_facture_mere) REFERENCES facture_mere(Id_facture_mere),
+   FOREIGN KEY(Id_diffusion_publicitaire) REFERENCES diffusion_publicitaire(Id_diffusion_publicitaire),
+   PRIMARY KEY(Id_facture_diffusion)
+);
+
+create table paiement_facture(
+   Id_paiement_facture SERIAL,
+   Id_facture_mere INTEGER NOT NULL,
+   date_paiement TIMESTAMP,
+   montant_paye NUMERIC(15,2),
+   FOREIGN KEY(Id_facture_mere) REFERENCES facture_mere(Id_facture_mere),
+   PRIMARY KEY(Id_paiement_facture)
 );
