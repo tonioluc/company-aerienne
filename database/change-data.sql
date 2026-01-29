@@ -39,3 +39,10 @@ WHERE Id_categorie_personne = (SELECT Id_categorie_client FROM categorie_client 
 UPDATE prix_par_categorie SET prix = NULL, pourcentage = 10
 WHERE Id_categorie_personne = (SELECT Id_categorie_client FROM categorie_client WHERE libelle = 'Bébé')
 	AND Id_classe_place = (SELECT Id_classe_place FROM classe_place WHERE libelle = 'Premiere');
+
+
+update produit_extra set prix_unitaire=7000 where Id_produit_extra=1;
+
+update vente_produit_extra set quantite = 150 where Id_vente_produit_extra = 1;
+
+-- Ovaina an'ito : ventes-produits/ajouter

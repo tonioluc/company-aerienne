@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventes par Produit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Favicon personnalisé (logo SVG) -->
+    <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
+    <link rel="shortcut icon" href="/images/logo.svg">
+</head>
+<body>
+    <div th:replace="~{sidebar}"></div>
+    
+    <div class="container-fluid py-4">
+        <div class="row mb-4">
+            <div class="col">
+                <h2 class="mb-0">
+                    <i class="bi bi-bar-chart-fill me-2"></i>Ventes par Produit
+                </h2>
+                <p class="text-muted">Statistiques des ventes de produits extras par période</p>
+            </div>
+        </div>
+
+        <!-- Filtre par mois et année -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-funnel me-2"></i>Filtrer par période
+            </div>
+            <div class="card-body">
+                <form th:action="@{/ventes-par-produit}" method="get" class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="mois" class="form-label">Mois</label>
+                        <select name="mois" id="mois" class="form-select">
+                            <option value="">-- Tous les mois --</option>
+                            <option value="1" th:selected="${mois == 1}">Janvier</option>
+                            <option value="2" th:selected="${mois == 2}">Février</option>
+                            <option value="3" th:selected="${mois == 3}">Mars</option>
+                            <option value="4" th:selected="${mois == 4}">Avril</option>
+                            <option value="5" th:selected="${mois == 5}">Mai</option>
+                            <option value="6" th:selected="${mois == 6}">Juin</option>
+                            <option value="7" th:selected="${mois == 7}">Juillet</option>
+                            <option value="8" th:selected="${mois == 8}">Août</option>
+                            <option value="9" th:selected="${mois == 9}">Septembre</option>
+                            <option value="10" th:selected="${mois == 10}">Octobre</option>
+                            <option value="11" th:selected="${mois == 11}">Novembre</option>
+                            <option value="12" th:selected="${mois == 12}">Décembre</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="annee" class="form-label">Année</label>
+                        <select name="annee" id="annee" class="form-select">
+                            <option value="">-- Toutes les années --</option>
+                            <option th:each="a : ${#numbers.sequence(2020, 2030)}" 
+                                    th:value="${a}" 
+                                    th:text="${a}"
+                                    th:selected="${annee == a}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search me-2"></i>Filtrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Affichage de la période sélectionnée -->
+        <div class="alert alert-info mb-4" th:if="${mois != null || annee != null}">
+            <i class="bi bi-calendar-event me-2"></i>
+            <strong>Période sélectionnée : </strong>
+            <span th:if="${mois != null}">
+                <span th:switch="${mois}">
+                    <span th:case="1">Janvier</span>
+                    <span th:case="2">Février</span>
+                    <span th:case="3">Mars</span>
+                    <span th:case="4">Avril</span>
+                    <span th:case="5">Mai</span>
+                    <span th:case="6">Juin</span>
+                    <span th:case="7">Juillet</span>
+                    <span th:case="8">Août</span>
+                    <span th:case="9">Septembre</span>
+                    <span th:case="10">Octobre</span>
+                    <span th:case="11">Novembre</span>
+                    <span th:case="12">Décembre</span>
+                </span>
+            </span>
+            <span th:if="${mois == null}">Tous les mois</span>
+            <span th:if="${annee != null}" th:text="' ' + ${annee}"></span>
+            <span th:if="${annee == null}"> (toutes les années)</span>
+        </div>
+
+        <!-- Tableau des ventes par produit -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <i class="bi bi-table me-2"></i>Statistiques des ventes
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Produit</th>
+                                <th class="text-end">Prix Unitaire (Ar)</th>
+                                <th class="text-center">Quantité Vendue</th>
+                                <th class="text-end">Montant Total (Ar)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(ventes)}">
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    Aucune vente trouvée pour cette période
+                                </td>
+                            </tr>
+                            <tr th:each="vente, iterStat : ${ventes}">
+                                <td th:text="${iterStat.count}"></td>
+                                <td>
+                                    <i class="bi bi-box-seam me-2 text-primary"></i>
+                                    <span th:text="${vente.nomProduit}"></span>
+                                </td>
+                                <td class="text-end" th:text="${#numbers.formatDecimal(vente.prixUnitaire, 1, 'COMMA', 2, 'POINT')}"></td>
+                                <td class="text-center">
+                                    <span class="badge bg-info" th:text="${vente.quantiteTotale}"></span>
+                                </td>
+                                <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(vente.montantTotal, 1, 'COMMA', 2, 'POINT')}"></td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="table-warning" th:if="${!#lists.isEmpty(ventes)}">
+                            <tr class="fw-bold fs-5">
+                                <td colspan="3" class="text-end">
+                                    <i class="bi bi-calculator me-2"></i>TOTAL GÉNÉRAL
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-dark" th:text="${quantiteTotale}"></span>
+                                </td>
+                                <td class="text-end text-success" th:text="${#numbers.formatDecimal(totalGeneral, 1, 'COMMA', 2, 'POINT') + ' Ar'}"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résumé en bas -->
+        <div class="row mt-4" th:if="${!#lists.isEmpty(ventes)}">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white shadow">
+                    <div class="card-body text-center">
+                        <i class="bi bi-box-seam fs-1"></i>
+                        <h5 class="mt-2">Nombre de Produits</h5>
+                        <h2 th:text="${#lists.size(ventes)}"></h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white shadow">
+                    <div class="card-body text-center">
+                        <i class="bi bi-cart-check fs-1"></i>
+                        <h5 class="mt-2">Quantité Totale</h5>
+                        <h2 th:text="${quantiteTotale}"></h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white shadow">
+                    <div class="card-body text-center">
+                        <i class="bi bi-currency-exchange fs-1"></i>
+                        <h5 class="mt-2">Montant Total</h5>
+                        <h2 th:text="${#numbers.formatDecimal(totalGeneral, 1, 'COMMA', 2, 'POINT') + ' Ar'}"></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

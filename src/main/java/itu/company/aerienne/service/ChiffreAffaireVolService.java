@@ -1,6 +1,7 @@
 package itu.company.aerienne.service;
 
 import itu.company.aerienne.dto.ChiffreAffaireVolDto;
+import itu.company.aerienne.dto.ProduitVenduDetailDto;
 import itu.company.aerienne.dto.VolInfoDto;
 import itu.company.aerienne.model.*;
 import itu.company.aerienne.repository.*;
@@ -10,7 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ChiffreAffaireVolService {
@@ -45,6 +48,12 @@ public class ChiffreAffaireVolService {
     @Autowired
     private AvionRepository avionRepository;
 
+    @Autowired
+    private VenteProduitExtraRepository venteProduitExtraRepository;
+
+    @Autowired
+    private ProduitExtraRepository produitExtraRepository;
+
     /**
      * Récupère le chiffre d'affaires pour tous les vols
      */
@@ -66,6 +75,14 @@ public class ChiffreAffaireVolService {
             // Montant de la publicité (depuis diffusion_publicitaire)
             BigDecimal montantPub = calculateMontantPublicite(vol.getIdVol());
             dto.setMontantPublicite(montantPub);
+
+            // Montant des produits extra vendus
+            BigDecimal montantProduitExtra = calculateMontantProduitExtra(vol.getIdVol());
+            dto.setMontantProduitExtra(montantProduitExtra);
+
+            // Détails des produits vendus pour ce vol
+            List<ProduitVenduDetailDto> produitsVendus = getProduitsVendusDetails(vol.getIdVol());
+            dto.setProduitsVendus(produitsVendus);
 
             // Montant payé (depuis facture_mere via diffusion)
             BigDecimal montantPaye = calculateMontantPaye(vol.getIdVol());
@@ -203,5 +220,58 @@ public class ChiffreAffaireVolService {
             return couts.get(0).getCoutUnitaire();
         }
         return BigDecimal.ZERO;
+    }
+
+    /**
+     * Calcule le montant total des produits extra vendus pour un vol
+     */
+    private BigDecimal calculateMontantProduitExtra(Integer idVol) {
+        BigDecimal total = BigDecimal.ZERO;
+        List<VenteProduitExtra> ventes = venteProduitExtraRepository.findByIdVol(idVol);
+
+        for (VenteProduitExtra vente : ventes) {
+            if (vente.getQuantite() != null && vente.getIdProduitExtra() != null) {
+                ProduitExtra produit = produitExtraRepository.findById(vente.getIdProduitExtra()).orElse(null);
+                if (produit != null && produit.getPrixUnitaire() != null) {
+                    BigDecimal montantVente = produit.getPrixUnitaire().multiply(BigDecimal.valueOf(vente.getQuantite()));
+                    total = total.add(montantVente);
+                }
+            }
+        }
+
+        return total;
+    }
+
+    /**
+     * Récupère les détails des produits vendus pour un vol (agrégés par produit)
+     */
+    private List<ProduitVenduDetailDto> getProduitsVendusDetails(Integer idVol) {
+        List<ProduitVenduDetailDto> result = new ArrayList<>();
+        List<VenteProduitExtra> ventes = venteProduitExtraRepository.findByIdVol(idVol);
+
+        // Agréger les quantités par produit
+        Map<Integer, Integer> quantiteParProduit = new HashMap<>();
+        for (VenteProduitExtra vente : ventes) {
+            if (vente.getQuantite() != null && vente.getIdProduitExtra() != null) {
+                quantiteParProduit.merge(vente.getIdProduitExtra(), vente.getQuantite(), Integer::sum);
+            }
+        }
+
+        // Créer les DTOs
+        for (Map.Entry<Integer, Integer> entry : quantiteParProduit.entrySet()) {
+            ProduitExtra produit = produitExtraRepository.findById(entry.getKey()).orElse(null);
+            if (produit != null) {
+                result.add(new ProduitVenduDetailDto(
+                    produit.getNom(),
+                    entry.getValue(),
+                    produit.getPrixUnitaire()
+                ));
+            }
+        }
+
+        // Trier par nom de produit
+        result.sort((a, b) -> a.getNomProduit().compareToIgnoreCase(b.getNomProduit()));
+
+        return result;
     }
 }

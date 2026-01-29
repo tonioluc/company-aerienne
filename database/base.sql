@@ -143,3 +143,21 @@ create table paiement_facture(
    FOREIGN KEY(Id_facture_mere) REFERENCES facture_mere(Id_facture_mere),
    PRIMARY KEY(Id_paiement_facture)
 );
+
+CREATE TABLE produit_extra(
+   Id_produit_extra SERIAL,
+   nom VARCHAR(100),
+   prix_unitaire NUMERIC(15,2),
+   PRIMARY KEY(Id_produit_extra)
+);
+
+CREATE TABLE vente_produit_extra(
+   Id_vente_produit_extra SERIAL,
+   Id_vol INTEGER NOT NULL,
+   Id_produit_extra INTEGER NOT NULL,
+   quantite INTEGER,
+   date_vente TIMESTAMP,
+   FOREIGN KEY(Id_produit_extra) REFERENCES produit_extra(Id_produit_extra),
+   FOREIGN KEY(Id_vol) REFERENCES vol(Id_vol),
+   PRIMARY KEY(Id_vente_produit_extra)
+);
