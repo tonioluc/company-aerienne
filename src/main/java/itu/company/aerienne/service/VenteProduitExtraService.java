@@ -2,7 +2,6 @@ package itu.company.aerienne.service;
 
 import itu.company.aerienne.model.VenteProduitExtra;
 import itu.company.aerienne.model.Vol;
-import itu.company.aerienne.repository.ProduitExtraRepository;
 import itu.company.aerienne.repository.VenteProduitExtraRepository;
 import itu.company.aerienne.repository.VolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +20,6 @@ public class VenteProduitExtraService {
     @Autowired
     private VolRepository volRepository;
 
-    @Autowired
-    private ProduitExtraRepository produitExtraRepository;
 
     public List<VenteProduitExtra> findAll() {
         return repository.findAll();
