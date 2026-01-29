@@ -12,9 +12,10 @@
 <!-- Sidebar Navigation -->
 <nav class="sidebar bg-dark text-white p-3" id="sidebar">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="mb-0">
-            <i class="bi bi-airplane me-2"></i> C. aérienne
-        </h3>
+        <a th:href="@{/}" class="d-flex align-items-center text-white text-decoration-none">
+            <img src="/images/logo.svg" alt="Logo" style="width:28px;height:28px;" class="me-2">
+            <span class="h5 mb-0">C. aérienne</span>
+        </a>
         <button class="btn-close btn-close-white d-md-none" id="sidebarClose"></button>
     </div>
     <hr class="bg-light">
@@ -86,16 +87,6 @@
                 <li class="nav-item mb-1">
                     <a class="nav-link text-white d-flex align-items-center" th:href="@{/achats/liste}">
                         <i class="bi bi-receipt me-2"></i> Liste des Achats
-                    </a>
-                </li>
-                <li class="nav-item mb-1">
-                    <a class="nav-link text-white d-flex align-items-center" th:href="@{/ventes-produits}">
-                        <i class="bi bi-list-check me-2"></i> Liste Ventes Produits
-                    </a>
-                </li>
-                <li class="nav-item mb-1">
-                    <a class="nav-link text-white d-flex align-items-center" th:href="@{/ventes-par-produit}">
-                        <i class="bi bi-bar-chart-fill me-2"></i> Statistiques par Produit
                     </a>
                 </li>
             </ul>
