@@ -89,3 +89,7 @@ INSERT INTO prix_par_categorie (Id_categorie_personne,id_vol, Id_classe_place, p
 	(1, 1, 'Jean', 40, 1), -- 20 janvier 2026 - 10h : 40 Adulte Économique (vol 1)
 	(1, 1, 'Jean', 30, 2), -- 21 janvier 2026 - 10h : 30 Adulte Économique (vol 2)
 	(1, 1, 'Jean', 50, 3); -- 21 janvier 2026 - 15h : 50 Adulte Économique (vol 3)
+
+	INSERT INTO produit_extra (nom, prix_unitaire) VALUES
+	('Chocolat', 5000);
+	

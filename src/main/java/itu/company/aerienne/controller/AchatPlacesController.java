@@ -7,6 +7,8 @@ import itu.company.aerienne.service.AchatPlacesService;
 import itu.company.aerienne.service.AeroportService;
 import itu.company.aerienne.service.VolService;
 import itu.company.aerienne.repository.ClassPlaceRepository;
+import itu.company.aerienne.service.ProduitExtraService;
+import itu.company.aerienne.service.VenteProduitExtraService;
 import itu.company.aerienne.repository.CategorieClientRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,12 @@ public class AchatPlacesController {
     private ClassPlaceRepository classPlaceRepository;
     @Autowired
     private CategorieClientRepository categorieClientRepository;
+
+    @Autowired
+    private ProduitExtraService produitExtraService;
+
+    @Autowired
+    private VenteProduitExtraService venteProduitExtraService;
 
     @GetMapping
     public String showForm(Model model) {
@@ -153,5 +161,27 @@ public class AchatPlacesController {
         achatPlacesService.deleteById(id);
         redirectAttributes.addFlashAttribute("success", "Achat supprimé avec succès.");
         return "redirect:/achats/liste";
+    }
+
+    @GetMapping("/produits-extras")
+    public String listeProduitsExtras(Model model) {
+        model.addAttribute("vols", volService.getAllVolDetails());
+        model.addAttribute("produitsExtras", produitExtraService.findAll());
+        return "vente/achat-produit-extra";
+    }
+
+    @PostMapping("/produits-extras/ajouter")
+    public String ajouterVenteProduitExtra(
+            @RequestParam("idProduitExtra") Integer idProduitExtra,
+            @RequestParam("idVol") Integer idVol,
+            @RequestParam("quantite") Integer quantite,
+            RedirectAttributes redirectAttributes) {
+        try {
+            venteProduitExtraService.enregistrerVente(idVol, idProduitExtra, quantite);
+            redirectAttributes.addFlashAttribute("successMessage", "Vente enregistrée avec succès !");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de l'enregistrement: " + e.getMessage());
+        }
+        return "redirect:/ventes-produits/ajouter";
     }
 }
