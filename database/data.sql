@@ -1,3 +1,25 @@
+-- effacer tous les donnees existantes
+-- 1. BASE
+DELETE FROM paiement_facture;
+DELETE FROM facture_diffusion;
+DELETE FROM facture_mere;
+DELETE FROM diffusion_publicitaire;
+
+DELETE FROM vente_produit_extra;
+DELETE FROM achat_places;
+DELETE FROM prix_par_categorie;
+DELETE FROM prix_vol;
+DELETE FROM cout_diffusion;
+
+DELETE FROM vol;
+DELETE FROM trajet;
+DELETE FROM avion;
+DELETE FROM aeroport;
+
+DELETE FROM produit_extra;
+DELETE FROM classe_place;
+DELETE FROM categorie_client;
+DELETE FROM societe;
 INSERT INTO aeroport (code_IATA, ville) VALUES
 ('TNR', 'Antananarivo'),
 ('NOS', 'Nosy Be');
